@@ -1,0 +1,8 @@
+services:
+  project:
+    build: .
+    environment:
+      - DISPLAY=0
+      - net=host
+    #command: ["--net=host", "-e DISPLAY:=0"]
+    #network_mode: "host"
