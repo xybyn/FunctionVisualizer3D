@@ -14,7 +14,7 @@ Texture::Texture()
 Texture::~Texture()
 {
     //if(to_id != 0)
-    //{
+    //{z
     //    glDeleteTextures(1, &to_id);
     //    to_id = 0;
     //}

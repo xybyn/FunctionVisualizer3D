@@ -9,11 +9,11 @@
 #include "common/Shader.h"
 #include "common/cameras/FreeCamera.h"
 #include "DefaultShader.h"
-
+#include "RootDir.h"
 class DiffuseShader : public DefaultShader {
 public:
     DiffuseShader(CameraBase *camera) :
-            DefaultShader(camera, "../src/shaders/diffuse.vert", "../src/shaders/diffuse.frag"){}
+            DefaultShader(camera, ROOT_DIR "src/shaders/diffuse.vert", ROOT_DIR "src/shaders/diffuse.frag"){}
 
     void use() override;
 

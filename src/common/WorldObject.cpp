@@ -11,6 +11,10 @@ void WorldObject::render() {
         texture->bind();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    if(!normals_shader)
+        return;
+    normals_shader->use();
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void WorldObject::setWorldPosition(const glm::vec3 &new_world_position) {

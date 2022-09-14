@@ -3,7 +3,13 @@
 
 
 #include "Scene.h"
-//#include "common/shaders/AmbientDiffuseSpecularShader.h"
+#include "common/shaders/DefaultShader.h"
+#include "common/shaders/AmbientDiffuseSpecularShader.h"
+#include "common/function_drawers/ImplicitFunctionDrawer.h"
+#include "common/function_drawers/ParametricFunctionDrawer.h"
+#include "common/shaders/FlatADSShader.h"
+#include "common/primitives/BoundBoxRenderer.h"
+#include "common/abstracts/BoundBox.h"
 class FunctionVisualizerScene : public Scene {
 public:
     FunctionVisualizerScene(CameraBase *camera);
@@ -11,7 +17,12 @@ public:
 
     std::string getName() const override { return "FunctionVisualizerScene"; }
 private:
-    class BoundBox *bb = nullptr;
+    BoundBoxRenderer *bb = nullptr;
+    DefaultShader *bb_shader = nullptr;
+    ImplicitFunctionDrawer *implicit_function_drawer = nullptr;
+    ParametricFunctionDrawer *parametric_function_drawer = nullptr;
+    AmbientDiffuseSpecularShader *function_shader = nullptr;
+    FlatADSShader *flat_shader = nullptr;
 };
 
 

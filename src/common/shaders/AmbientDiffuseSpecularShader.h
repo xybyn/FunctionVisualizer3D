@@ -7,12 +7,12 @@
 
 
 #include "DefaultShader.h"
-
+#include "RootDir.h"
 class AmbientDiffuseSpecularShader : public DefaultShader {
 public:
     AmbientDiffuseSpecularShader(CameraBase *camera) :
-            DefaultShader(camera, "../src/shaders/ambient_diffuse_specular.vert",
-                          "../src/shaders/ambient_diffuse_specular.frag") {}
+            DefaultShader(camera, ROOT_DIR "src/shaders/ambient_diffuse_specular.vert",
+                          ROOT_DIR "/src/shaders/ambient_diffuse_specular.frag") {}
     AmbientDiffuseSpecularShader(CameraBase *camera, const char *vert, const char *frag) :
             DefaultShader(camera, vert,frag) {}
     void use() override;

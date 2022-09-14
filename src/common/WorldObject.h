@@ -11,9 +11,12 @@
 #include <memory>
 #include "Shader.h"
 #include "Texture.h"
-class WorldObject {
+
+class WorldObject
+{
 public:
-    virtual ~WorldObject() {}
+    virtual ~WorldObject()
+    {}
 
     WorldObject();
 
@@ -21,11 +24,19 @@ public:
 
     void setWorldPosition(const glm::vec3 &new_world_position);
 
-    void setShader(Shader *shader) {
+    void setShader(Shader *shader)
+    {
         this->shader = shader;
     }
-    void setTexture(Texture *texture) {
+
+    void setTexture(Texture *texture)
+    {
         this->texture = texture;
+    }
+
+    void setNormalShader(Shader *normal_shader)
+    {
+        this->normals_shader = normal_shader;
     }
 
 protected:
@@ -38,6 +49,7 @@ protected:
     std::vector<glm::vec3> tangents;
     std::vector<uint> indices;
     Shader *shader = nullptr;
+    Shader *normals_shader = nullptr;
     Texture *texture = nullptr;
 
     void initialize_buffers();

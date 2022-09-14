@@ -7,11 +7,11 @@
 
 #include "../Shader.h"
 #include "common/cameras/CameraBase.h"
-
+#include "RootDir.h"
 class DefaultShader : public Shader {
 public:
     DefaultShader(CameraBase * camera) :
-    Shader("../src/shaders/default.vert", "../src/shaders/default.frag"),
+    Shader(ROOT_DIR "src/shaders/default.vert", ROOT_DIR "src/shaders/default.frag"),
     camera(camera){}
 
     DefaultShader(CameraBase * camera, const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr) :

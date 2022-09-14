@@ -22,11 +22,11 @@ void NormalMapScene::render() {
 }
 
 NormalMapScene::NormalMapScene(CameraBase *camera) : Scene(camera) {
-    auto sphere = new Model("../resources/bs_ears.obj");
+    auto sphere = new Model(ROOT_DIR "resources/bs_ears.obj");
     add(sphere);
     shader = new NormalMapShader(camera);
     sphere->setShader(shader);
     texture = new Texture();
-    texture->load(0, "../resources/ogre_diffuse.png");
-    texture->load(1, "../resources/ogre_normalmap.png");
+    texture->load(0,ROOT_DIR "resources/ogre_diffuse.png");
+    texture->load(1,ROOT_DIR "resources/ogre_normalmap.png");
 }

@@ -25,6 +25,6 @@ MultipleTexturesScene::MultipleTexturesScene(CameraBase *camera) : Scene(camera)
     shader = new MultipleTexturesShader(camera);
     sphere->setShader(shader);
     texture = new Texture();
-    texture->load(0, "../resources/moss.png");
-    texture->load(1, "../resources/brick1.jpg");
+    texture->load(0, ROOT_DIR "resources/moss.png");
+    texture->load(1, ROOT_DIR "resources/brick1.jpg");
 }

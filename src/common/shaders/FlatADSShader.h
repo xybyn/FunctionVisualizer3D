@@ -7,10 +7,11 @@
 
 #include "AmbientDiffuseSpecularShader.h"
 #include "DefaultShader.h"
+#include "RootDir.h"
 class FlatADSShader : public AmbientDiffuseSpecularShader
 {
 public:
-    FlatADSShader(CameraBase *camera) : AmbientDiffuseSpecularShader(camera, "../src/shaders/flat_ads.vert", "../src/shaders/flat_ads.frag") {}
+    FlatADSShader(CameraBase *camera) : AmbientDiffuseSpecularShader(camera, ROOT_DIR "src/shaders/flat_ads.vert", ROOT_DIR "src/shaders/flat_ads.frag") {}
 };
 
 #endif //OPENGLPROJECT_FLATADSSHADER_H

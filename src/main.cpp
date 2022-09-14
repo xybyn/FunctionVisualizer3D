@@ -40,6 +40,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     int display_w = 1280, display_h = 720;
     GLFWwindow *window = glfwCreateWindow(display_w, display_h, "Window", NULL, NULL);
     glfwMakeContextCurrent(window);
@@ -48,8 +49,10 @@ int main()
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POINT_SIZE);
     glEnable(GL_BLEND);
     glDepthFunc(GL_LEQUAL);
+    glEnable(GL_MULTISAMPLE);
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -62,16 +65,16 @@ int main()
     int selected_scene_index = 0;
 
     vector<Scene *> scenes;
-    scenes.push_back(new ToonScene(camera));
-    scenes.push_back(new MaterialsScene(camera));
-    scenes.push_back(new MultipleTexturesScene(camera));
-    scenes.push_back(new NormalMapScene(camera));
+    //scenes.push_back(new ToonScene(camera));
+    //scenes.push_back(new MaterialsScene(camera));
+    //scenes.push_back(new MultipleTexturesScene(camera));
+    //scenes.push_back(new NormalMapScene(camera));
     scenes.push_back(new FunctionVisualizerScene(camera));
     vector<const char *> scene_names;
-    scene_names.push_back("Toon");
-    scene_names.push_back("Materials");
-    scene_names.push_back("Multi textures");
-    scene_names.push_back("Normal map");
+    //scene_names.push_back("Toon");
+    //scene_names.push_back("Materials");
+    //scene_names.push_back("Multi textures");
+    //scene_names.push_back("Normal map");
     scene_names.push_back("Function Visualizer");
     while (!glfwWindowShouldClose(window))
     {
@@ -82,7 +85,6 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
         static double prev_time = 0;
         double current_time = glfwGetTime();
         double dt = current_time - prev_time;

@@ -14,6 +14,7 @@ void main()
     from_vert_texcoord = location_tex;
     from_vert_normal = location_normal;
     from_vert_position = location_position;
+    gl_PointSize = 5.0;
     gl_Position =
     projection*
     view*

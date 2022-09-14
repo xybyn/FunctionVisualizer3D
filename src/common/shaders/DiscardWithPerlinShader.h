@@ -6,11 +6,11 @@
 #define OPENGLPROJECT_DISCARDWITHPERLINSHADER_H
 
 #include "AmbientDiffuseSpecularShader.h"
-
+#include "RootDir.h"
 class DiscardWithPerlinShader : public AmbientDiffuseSpecularShader
 {
 public:
-    DiscardWithPerlinShader(CameraBase *camera) : AmbientDiffuseSpecularShader(camera, "../src/shaders/discard.vert", "../src/shaders/discard.frag"){}
+    DiscardWithPerlinShader(CameraBase *camera) : AmbientDiffuseSpecularShader(camera,ROOT_DIR "src/shaders/discard.vert", ROOT_DIR "src/shaders/discard.frag"){}
     void setDiscardStrength(float value) {
         discard_strength = value;
     }
