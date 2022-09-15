@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include "common/trees/CubeTree.h"
+#include "common/Utils.h"
 using namespace glm;
 using namespace std;
 
@@ -327,8 +328,8 @@ vector<vec3> MarchCube(vec3* eight_points, SDF f)
 
 ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &step, const BoundBox &bound, bool inverted)
 {
-    calculate_parallel(32, vertices, normals, indices, step, bound, function);
-
+    //calculate_parallel(8, vertices, normals, indices, step, bound, function);
+    get_volume_vertices_normals_indices(vertices, normals, indices, step, bound, function);
     WorldObject::initialize_buffers();
 }
 
@@ -391,7 +392,8 @@ void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vecto
 void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
                                                                  const vec3 &step, BoundBox bound, SDF function)
 {
-    float size_x = bound.getSizeX();
+    tree = new CubeTree<int>(bound);
+    float size_x = bound.getSizeX();    
     float size_y = bound.getSizeY();
     float size_z = bound.getSizeZ();
 
@@ -421,20 +423,58 @@ void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm
                     vec3 p0 = cubeVertices[i];
                     vec3 p1 = cubeVertices[i + 1];
                     vec3 p2 = cubeVertices[i + 2];
+
+                    tree->insert(CubeTreeUnit<int>(p0, vertices.size()));  
+                    tree->insert(CubeTreeUnit<int>(p1, vertices.size()+1));  
+                    tree->insert(CubeTreeUnit<int>(p2, vertices.size()+2));  
+
                     vertices.push_back(p0);
                     vertices.push_back(p1);
                     vertices.push_back(p2);
-                    indices.push_back(indices.size());
-                    indices.push_back(indices.size());
-                    indices.push_back(indices.size());
 
-                    vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
-                    float inv = false ? -1 : 1;
-                    normals.push_back(inv*normal);
-                    normals.push_back(inv*normal);
-                    normals.push_back(inv*normal);
+                    vec3 min = min_vec(p0, min_vec(p1, p2));
+                    vec3 max = max_vec(p0, max_vec(p1, p2));
+
+                    BoundBox vol (min-vec3(0.1), max+vec3(0.1));
+                   
+
+                    indices.push_back(indices.size());
+                    indices.push_back(indices.size());
+                    indices.push_back(indices.size());
+                    float inv = true ? -1 : 1;
+                    
+                    vec3 normal0 = inv * glm::normalize(glm::cross(p1 - p0, p2 - p0));
+                    vec3 normal1 = normal0;
+                    vec3 normal2 = normal0;
+                   
+                   
+                    normals.push_back(normal0);
+                    normals.push_back(normal1);
+                    normals.push_back(normal2);
                 }
             }
         }
     }
+
+
+    for(int i =0 ; i<vertices.size();i++)
+    {
+         vector<CubeTreeUnit<int>> result;
+        tree->getData(BoundBox(vertices[i] - vec3(0.5), vertices[i] + vec3(0.5)), result);
+        for(int j = 0; j < result.size(); j++)
+                    {
+                        
+                        if(are_points_same(result[j].getPosition(), vertices[i], 0.2f) && result[j].getData() != i)
+                        {
+                            //vec3 v = normals[result[i].getData()];
+                            //cout<<"ASDASDS"<<endl;
+                            vec3 normal = glm::normalize(normals[i] + normals[result[j].getData()]);
+                            normals[result[j].getData()] = normal;
+                            normals[i] =normal;
+                            //normals[result[j].getData()] = normals[i];
+                           // points1.push_back(result[j].getPosition());
+                        }
+                    }  
+    }
+
 }

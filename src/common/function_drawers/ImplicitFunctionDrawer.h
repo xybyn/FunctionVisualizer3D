@@ -3,12 +3,14 @@
 
 #include "common/WorldObject.h"
 #include "common/abstracts/BoundBox.h"
+#include "common/trees/CubeTree.h"
 typedef float (*SDF)(const glm::vec3 &);
 class ImplicitFunctionDrawer : public WorldObject
 {
 public:
+    CubeTree<int> *tree;
+    std::vector<glm::vec3> points1;
     ImplicitFunctionDrawer(SDF function, const glm::vec3 &step, const BoundBox &bound, bool inverted = false);
-
 private:
 
     struct ThreadResult{
@@ -17,12 +19,12 @@ private:
         std::vector<uint> indices;
 
     };
-
     void calculate_parallel(int count_of_threads, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
                             const glm::vec3 &step, const BoundBox &bound, SDF function);
 
     void get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
                                              const glm::vec3 &step, BoundBox bound, SDF function);
+
 };
 
 #endif //OPENGLPROJECT_BOUNDBOX_H

@@ -73,7 +73,7 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
 
 
     function_shader = new AmbientDiffuseSpecularShader(camera);
-    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.05), b, true);
+    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.25), b, true);
 
     flat_shader = new FlatADSShader(camera);
     implicit_function_drawer->setShader(function_shader);
@@ -116,20 +116,29 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
     NormalsShader *normals_shader = new NormalsShader(camera);
 
     BoundBoxRenderer *renderer = new BoundBoxRenderer(*parametric_function_drawer->bb);
-    CubeTreeRenderer<int> *tree_renderer = new CubeTreeRenderer<int>(parametric_function_drawer->tree);
+    CubeTreeRenderer<int> *tree_renderer = new CubeTreeRenderer<int>(implicit_function_drawer->tree);
     vector<CubeTreeUnit<int>> vertices;
     parametric_function_drawer->tree->getData(parametric_function_drawer->tree->getBoundBox(), vertices);
-    //parametric_function_drawer->setNormalShader(normals_shader);
+    parametric_function_drawer->setNormalShader(normals_shader);
+
+    for(int i = 0; i < implicit_function_drawer->points1.size(); i++)
+
+    {
+        auto point = new Point(implicit_function_drawer->points1[i]);
+        point->setShader(function_shader);
+        add(point);
+    }
+
     cout << vertices.size() << endl;
 
     tree_renderer->setShader(bb_shader);
     renderer->setShader(bb_shader);
-
-    //add(parametric_function_drawer);
+    implicit_function_drawer->setNormalShader(normals_shader);
+    add(implicit_function_drawer);
     //add(renderer);
     //add(parametric_function_drawer);
-    //add(tree_renderer);
-    add(parametric_function_drawer);
-    add(plane);
+   // add(tree_renderer);
+   // add(parametric_function_drawer);
+   // add(plane);
 
 }
