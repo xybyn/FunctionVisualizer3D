@@ -141,7 +141,6 @@ ParametricFunctionDrawer::ParametricFunctionDrawer(DoubleVariableFunction x, Dou
 
         }
     }
-    cout << " sss" << vertices.size() << endl;
     initialize_buffers();
 }
 
