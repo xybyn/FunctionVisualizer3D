@@ -34,9 +34,10 @@ void WorldObject::initialize_buffers() {
     glBufferData(GL_ARRAY_BUFFER, (vertices.size()* 3 + normals.size()* 3+ tex_coords.size()* 2) * sizeof(float), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float) * 3, &vertices[0]);
 
+    if(!normals.empty())
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * 3, normals.size() * sizeof(float) * 3,
                     &normals[0]);
-
+    if(!tex_coords.empty())
     glBufferSubData(GL_ARRAY_BUFFER, (vertices.size() + normals.size())* sizeof(float) * 3, tex_coords.size() * sizeof(float) * 2,
                     &tex_coords[0]);
     if(!tangents.empty())

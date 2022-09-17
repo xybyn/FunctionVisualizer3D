@@ -18,6 +18,7 @@ public:
     GLuint program;
 
     inline Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr) {
+        std::cout<<vertexPath<<std::endl;
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile;

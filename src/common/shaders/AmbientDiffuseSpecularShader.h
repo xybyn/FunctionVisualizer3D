@@ -19,7 +19,7 @@ public:
 
 
     struct Light {
-        glm::vec4 position = glm::vec4(4, 4, 4, 1);
+        glm::vec4 position = glm::vec4(0, 4, 4, 1);
         glm::vec3 La= glm::vec3(1.0);
         glm::vec3 Ld= glm::vec3(1.0);
         glm::vec3 Ls= glm::vec3(1.0);
@@ -35,6 +35,12 @@ public:
     }
     void setMaterial(const Material &material){
         this->material = material;
+    }
+    const Light & getLight(){
+        return light;
+    }
+    const Material & getMaterial(){
+        return material;
     }
 private:
     Light light;
