@@ -21,6 +21,8 @@ public:
     WorldObject();
 
     virtual void render();
+    virtual void update(float dt) {}
+
 
     void setWorldPosition(const glm::vec3 &new_world_position);
 

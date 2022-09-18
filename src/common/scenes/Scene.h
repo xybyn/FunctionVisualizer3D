@@ -17,7 +17,12 @@ public:
     Scene(CameraBase *camera) : camera(camera){ }
     void add(WorldObject *object) { objects.push_back(object); }
 
-    virtual void update(float dt) { camera->update(dt);}
+    virtual void update(float dt) { camera->update(dt);
+        for (int i = 0; i < objects.size(); ++i)
+        {
+            objects[i]->update(dt);
+        }
+    }
 
     virtual void render();
 

@@ -9,6 +9,7 @@ template<typename T>
 class ParallelTask
 {
 public:
+    ~ParallelTask() {}
     bool isInProgress() const
     { return in_progress; }
 

@@ -96,12 +96,12 @@ int main()
         {
             if (task->isInProgress())
             {
-                cout << "task in progress" << endl;
-                cout<<task->getProgress()<<endl;
+                //cout << "task in progress" << endl;
+                //cout<<task->getProgress()<<endl;
             }
             if (task->isDone())
             {
-                cout << "task is done, result: " << task->getResult()<< endl;
+               // cout << "task is done, result: " << task->getResult()<< endl;
                 delete task;
                 task = nullptr;
             }

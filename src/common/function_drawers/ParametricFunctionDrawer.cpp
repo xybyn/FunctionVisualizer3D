@@ -1,7 +1,9 @@
 #include "ParametricFunctionDrawer.h"
 #include <vector>
 #include "common/Utils.h"
+#include "common/tasks/ParallelTask.h"
 #include <limits>
+#include <thread>
 
 using namespace glm;
 using namespace std;
@@ -75,25 +77,55 @@ namespace
         return indices;
     }
 
+
 }
 
-ParametricFunctionDrawer::ParametricFunctionDrawer(DoubleVariableFunction x, DoubleVariableFunction y,
-                                                   DoubleVariableFunction z, const vec2 &u_range, const vec2 &v_range,
-                                                   const ivec2 &divisions, bool inverted)
+ParametricFunctionDrawer::ParametricFunctionDrawer(DoubleVariableFunction func, const vec2 &u_range,
+                                                   const vec2 &v_range, const ivec2 &divisions, bool inverted) : func(
+        func), u_range(u_range), v_range(v_range), divisions(divisions), inverted(inverted)
 {
-    //tree = new CubeTree<vec3>();
-    float su = (u_range.y - u_range.x) / (divisions.x - 1);
-    float sv = (v_range.y - v_range.x) / (divisions.y - 1);
-    vec3 min_corner(INFINITY), max_corner(-INFINITY);
-    for (int i = 0; i < divisions.x; ++i)
-    {
-        float u = u_range.x + i * su;
-        for (int j = 0; j < divisions.y; ++j)
-        {
-            float v = v_range.x + j * sv;
-            const glm::vec3 &vertex = vec3(x(u, v), y(u, v), z(u, v));
+    task = new ParametricFunctionDrawerTask(this);
+    task->run();
+}
 
-            vertices.push_back(vertex);
+void ParametricFunctionDrawer::update(float dt)
+{
+    WorldObject::update(dt);
+
+    if (task)
+    {
+        if (task->isDone())
+        {
+            initialize_buffers();
+            task = nullptr;
+            delete task;
+        }
+    }
+
+
+}
+
+void ParametricFunctionDrawer::render()
+{
+    if (!task)
+        WorldObject::render();
+}
+
+void ParametricFunctionDrawer::ParametricFunctionDrawerTask::process(ParametricFunctionDrawerTask *that)
+{
+
+    float su = (owner->u_range.y - owner->u_range.x) / (owner->divisions.x - 1);
+    float sv = (owner->v_range.y - owner->v_range.x) / (owner->divisions.y - 1);
+    vec3 min_corner(INFINITY), max_corner(-INFINITY);
+    for (int i = 0; i < owner->divisions.x; ++i)
+    {
+        float u = owner->u_range.x + i * su;
+        for (int j = 0; j < owner->divisions.y; ++j)
+        {
+            float v = owner->v_range.x + j * sv;
+            const glm::vec3 &vertex = owner->func(u, v);
+
+            owner->vertices.push_back(vertex);
             min_corner.x = glm::min(min_corner.x, vertex.x);
             min_corner.y = glm::min(min_corner.y, vertex.y);
             min_corner.z = glm::min(min_corner.z, vertex.z);
@@ -103,45 +135,56 @@ ParametricFunctionDrawer::ParametricFunctionDrawer(DoubleVariableFunction x, Dou
             max_corner.z = glm::max(max_corner.z, vertex.z);
         }
     }
-    bb = new BoundBox(min_corner, max_corner);
-    tree = new CubeTree<int>(*bb);
+    owner->bb = new BoundBox(min_corner, max_corner);
+    owner->tree = new CubeTree<int>(*owner->bb);
 
-    indices = get_indices(divisions.x, divisions.y);
-    normals = calculate_normals(divisions.x, divisions.y, vertices, inverted ? -1 : 1);
-    for (int i = 0; i < vertices.size(); i++)
+   owner->indices = get_indices(owner->divisions.x, owner->divisions.y);
+   owner->normals = calculate_normals(owner->divisions.x, owner->divisions.y, owner->vertices, owner->inverted ? -1 : 1);
+    for (int i = 0; i < owner->vertices.size(); i++)
     {
-        tree->insert(CubeTreeUnit<int>(vertices[i], i));
+        owner->tree->insert(CubeTreeUnit<int>(owner->vertices[i], i));
     }
 
-    int height = divisions.x;
-    int width = divisions.y;
+    int height = owner->divisions.x;
+    int width =owner-> divisions.y;
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
         {
             if (i == 0 || j == 0 || i == height - 1 || j == height - 1)
             {
-                const vec3 &p = vertices[i * height + j];
+                const vec3 &p = owner->vertices[i * height + j];
                 vector<CubeTreeUnit<int>> points_around_p;
                 auto bound = BoundBox(p - vec3(0.1f), p + vec3(0.1f));
-                tree->getData(bound, points_around_p);
+                owner->tree->getData(bound, points_around_p);
 
                 for (int k = 0; k < points_around_p.size(); ++k)
                 {
                     if (are_points_same(p, points_around_p[k].getPosition()))
                     {
                         int index = points_around_p[k].getData();
-                        vec3 avg = normalize(normals[i * height + j] + normals[index]);
-                        vertices[i * height + j] = points_around_p[k].getPosition();
-                        normals[i * height + j] = avg;
-                        normals[index] = avg;
+                        vec3 avg = normalize(owner->normals[i * height + j] + owner->normals[index]);
+                        owner->vertices[i * height + j] = points_around_p[k].getPosition();
+                        owner->normals[i * height + j] = avg;
+                        owner->normals[index] = avg;
                     }
                 }
             }
 
         }
     }
-    cout << " sss" << vertices.size() << endl;
-    initialize_buffers();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    done();
 }
 
+ParametricFunctionDrawer::ParametricFunctionDrawerTask::ParametricFunctionDrawerTask(ParametricFunctionDrawer *owner)
+        : owner(owner)
+{
+
+}
+
+void ParametricFunctionDrawer::ParametricFunctionDrawerTask::run()
+{
+    ParallelTask::run();
+    t = new thread(&ParametricFunctionDrawer::ParametricFunctionDrawerTask::process, this, this);
+}
