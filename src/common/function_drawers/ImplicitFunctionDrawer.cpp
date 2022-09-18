@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include "common/trees/CubeTree.h"
+#include "common/Utils.h"
 using namespace glm;
 using namespace std;
 
@@ -329,7 +330,8 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &st
 {
     //calculate_parallel(32, vertices, normals, indices, step, bound, function);
     auto start = std::chrono::system_clock::now();
-    calculate_parallel(36, vertices, normals, indices, step, bound, function);
+    get_volume_vertices_normals_indices(vertices, normals, indices, step, bound, function);
+   // calculate_parallel(36, vertices, normals, indices, step, bound, function);
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -410,6 +412,11 @@ void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm
     int nx = (int)ceil(size_x / step.x);
     int ny = (int)ceil(size_y / step.y);
     int nz = (int)ceil(size_z / step.z);
+
+    auto tree = new CubeTree<int>(bound);
+    vertices.reserve(nx * nx * nx);
+    normals.reserve(nx * nx * nx);
+    indices.reserve(6 * nx * nx * nx);
     for (int x = 0; x < nx; x++)
     {
         for (int y = 0; y < ny; y++)
@@ -430,21 +437,75 @@ void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm
                 vector<vec3> cubeVertices = MarchCube(points, function);
                 for (int i = 0; i < cubeVertices.size(); i += 3)
                 {
-                    vec3 p0 = cubeVertices[i];
-                    vec3 p1 = cubeVertices[i + 1];
-                    vec3 p2 = cubeVertices[i + 2];
-                    vertices.push_back(p0);
-                    vertices.push_back(p1);
-                    vertices.push_back(p2);
-                    indices.push_back(indices.size());
-                    indices.push_back(indices.size());
-                    indices.push_back(indices.size());
+                    const vec3& p0 = cubeVertices[i];
+                    const vec3& p1 = cubeVertices[i + 1];
+                    const vec3& p2 = cubeVertices[i + 2];
+                    float inv = true ? -1 : 1;
+                    vec3 normal = inv * glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
-                    vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
-                    float inv = false ? -1 : 1;
-                    normals.push_back(inv*normal);
-                    normals.push_back(inv*normal);
-                    normals.push_back(inv*normal);
+                    vec3 min = min_vec(min_vec(p0, p1), p2);
+                    vec3 max = max_vec(max_vec(p0, p1), p2);
+
+
+                    BoundBox points_bound(min - vec3(0.1f), max + vec3(0.1));
+                    vector<CubeTreeUnit<int>> data;
+                    tree->getData(points_bound, data);
+
+                    bool found_p0 = false;
+                    bool found_p1 = false;
+                    bool found_p2 = false;
+                    for (int j = 0; j < data.size(); ++j)
+                    {
+                        if (are_points_same(p0, data[j].getPosition(), 0.01f) && !found_p0)
+                        {
+                            found_p0 = true;
+                            indices.push_back(data[j].getData());
+                        }
+
+                        if (are_points_same(p1, data[j].getPosition(), 0.01f) && !found_p1)
+                        {
+                            found_p1 = true;
+                            indices.push_back(data[j].getData());
+                        }
+
+                        if (are_points_same(p2, data[j].getPosition(), 0.01f) && !found_p2)
+                        {
+                            found_p2 = true;
+                            indices.push_back(data[j].getData());
+                        }
+                    }
+
+                    if (!found_p0)
+                    {
+                        vertices.push_back(p0);
+                        tree->insert(CubeTreeUnit<int>(p0, vertices.size() - 1));
+
+
+                        indices.push_back(vertices.size() - 1);
+                        normals.push_back(normal);
+
+                    }
+
+                    if (!found_p1)
+                    {
+                        vertices.push_back(p1);
+                        tree->insert(CubeTreeUnit<int>(p1, vertices.size() - 1));
+
+
+                        indices.push_back(vertices.size() - 1);
+                        normals.push_back(normal);
+
+                    }
+
+                    if (!found_p2)
+                    {
+                        vertices.push_back(p2);
+                        tree->insert(CubeTreeUnit<int>(p2, vertices.size() - 1));
+
+
+                        indices.push_back(vertices.size() - 1);
+                        normals.push_back(normal);
+                    }
                 }
             }
         }
