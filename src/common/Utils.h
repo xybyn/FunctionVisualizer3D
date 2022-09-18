@@ -25,4 +25,14 @@ inline bool are_points_same(const glm::vec3 &a, const glm::vec3 &b)
     float eps = 0.00001f;
     return equals(a.x, b.x, eps) && equals(a.y, b.y, eps) && equals(a.z, b.z, eps);
 }
+
+inline glm::vec3 min_vec(const glm::vec3& a, const glm::vec3& b)
+{
+    return glm::vec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+}
+
+inline glm::vec3 max_vec(const glm::vec3& a, const glm::vec3& b)
+{
+    return glm::vec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+}
 #endif //FUNCTIONVISUALIZER3D_UTILS_H
