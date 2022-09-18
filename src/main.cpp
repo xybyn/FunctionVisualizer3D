@@ -23,6 +23,7 @@
 #include "common/scenes/MultipleTexturesScene.h"
 #include "common/scenes/NormalMapScene.h"
 #include "common/scenes/FunctionVisualizerScene.h"
+#include "common/tasks/HelloWorldTask.h"
 
 using namespace std;
 using namespace glm;
@@ -56,7 +57,7 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
+    (void) io;
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 420");
@@ -76,6 +77,8 @@ int main()
     //scene_names.push_back("Multi textures");
     //scene_names.push_back("Normal map");
     scene_names.push_back("Function Visualizer");
+    HelloWorldTask *task = new HelloWorldTask("hello world");
+    task->run();
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -89,6 +92,22 @@ int main()
         double current_time = glfwGetTime();
         double dt = current_time - prev_time;
         prev_time = current_time;
+        if (task)
+        {
+            if (task->isInProgress())
+            {
+                cout << "task in progress" << endl;
+                cout<<task->getProgress()<<endl;
+            }
+            if (task->isDone())
+            {
+                cout << "task is done, result: " << task->getResult()<< endl;
+                delete task;
+                task = nullptr;
+            }
+
+        }
+
 
         controller->update(0);
         ImGui::SetNextWindowPos(ImVec2(0, 0));

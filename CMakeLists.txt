@@ -34,7 +34,7 @@ file(GLOB_RECURSE IMGUI_FILES ${CMAKE_SOURCE_DIR}/include/imgui/*)
 file(GLOB_RECURSE STB_IMAGE_FILES ${CMAKE_SOURCE_DIR}/include/stb_image/*)
 
 # Define the executable
-add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES} ${IMGUI_FILES} ${STB_IMAGE_FILES} src/common/primitives/Point.cpp src/common/primitives/Point.h src/common/Utils.h src/common/shaders/NormalsShader.cpp src/common/shaders/NormalsShader.h)
+add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES} ${IMGUI_FILES} ${STB_IMAGE_FILES} src/common/primitives/Point.cpp src/common/primitives/Point.h src/common/Utils.h src/common/shaders/NormalsShader.cpp src/common/shaders/NormalsShader.h src/common/tasks/ParallelTask.h src/common/tasks/HelloWorldTask.h)
 
 # We need a CMAKE_DIR with some code to find external dependencies
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
