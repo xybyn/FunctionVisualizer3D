@@ -24,7 +24,7 @@ public:
 
     void setWorldPosition(const glm::vec3 &new_world_position);
 
-    void setShader(Shader *shader)
+    virtual void setShader(Shader *shader)
     {
         this->shader = shader;
     }
@@ -38,8 +38,7 @@ public:
     {
         this->normals_shader = normal_shader;
     }
-
-protected:
+    void initialize_buffers();
     GLuint VAO;
     GLuint EBO;
     GLuint VBO;
@@ -52,7 +51,6 @@ protected:
     Shader *normals_shader = nullptr;
     Texture *texture = nullptr;
 
-    void initialize_buffers();
 
 private:
     glm::mat4 translate_matrix;

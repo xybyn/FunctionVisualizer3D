@@ -3,26 +3,31 @@
 
 #include "common/WorldObject.h"
 #include "common/abstracts/BoundBox.h"
+
 typedef float (*SDF)(const glm::vec3 &);
+
+class ImplicitFunctionDrawerChunk : public WorldObject
+{
+public:
+    ImplicitFunctionDrawerChunk(SDF function, const glm::vec3 &step, const BoundBox &bound, bool inverted = false);
+
+    void get_volume_vertices_normals_indices();
+
+    const BoundBox &bound;
+    SDF function;
+    const glm::vec3 &step;
+};
+
 class ImplicitFunctionDrawer : public WorldObject
 {
 public:
     ImplicitFunctionDrawer(SDF function, const glm::vec3 &step, const BoundBox &bound, bool inverted = false);
+    void setShader(Shader *shader) override;
+    void render() override;
 
 private:
-
-    struct ThreadResult{
-        std::vector<glm::vec3> vertices;
-        std::vector<glm::vec3> normals;
-        std::vector<uint> indices;
-
-    };
-
-    void calculate_parallel(int count_of_threads, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
-                            const glm::vec3 &step, const BoundBox &bound, SDF function);
-
-    void get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
-                                             const glm::vec3 &step, BoundBox bound, SDF function);
+    std::vector<ImplicitFunctionDrawerChunk *> chunks;
+    void calculate_parallel(int count_of_threads, const glm::vec3 &step, const BoundBox &bound, SDF function);
 };
 
 #endif //OPENGLPROJECT_BOUNDBOX_H

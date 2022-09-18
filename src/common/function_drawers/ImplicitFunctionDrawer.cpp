@@ -330,7 +330,8 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &st
 {
     //calculate_parallel(32, vertices, normals, indices, step, bound, function);
     auto start = std::chrono::system_clock::now();
-    calculate_parallel(36, vertices, normals, indices, step, bound, function);
+    calculate_parallel(2, step, bound, function);
+
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end-start;
@@ -339,15 +340,19 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &st
               << "elapsed time: " << elapsed_seconds.count() << "s"
               << std::endl;
 
-    cout<<"Count of vertices "<<vertices.size()<<endl;
-    cout<<"Count of normals "<<normals.size()<<endl;
-    cout<<"Count of indices "<<indices.size()<<endl;
-    WorldObject::initialize_buffers();
+    int total_vertices = 0;
+    for (int i = 0; i < chunks.size(); ++i)
+    {
+        total_vertices += chunks[i]->vertices.size();
+    }
+    cout<<"Count of vertices "<<total_vertices<<endl;
+    for(int i =0 ;i < chunks.size();i++)
+        chunks[i]->initialize_buffers();
 }
 
-void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices, const glm::vec3 &step, const BoundBox &bound, SDF function)
+void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, const glm::vec3 &step, const BoundBox &bound, SDF function)
 {
-    ThreadResult *results = new ThreadResult[count_of_threads];
+
     thread **threads = new thread*[count_of_threads];
     float size_x = bound.getSizeX();
     float size_y = bound.getSizeY();
@@ -366,9 +371,10 @@ void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vecto
            vec3(prev, llb.y, llb.z),
            vec3(next, ruf.y, ruf.z)
         };
+        auto func = new ImplicitFunctionDrawerChunk(function, step,v,false);
+        chunks.push_back(func);
         prev = next;
-        threads[i] = new thread(&ImplicitFunctionDrawer::get_volume_vertices_normals_indices, this,
-                                ref(results[i].vertices), ref(results[i].normals), ref(results[i].indices), ref(step), v, function);
+        threads[i] = new thread(&ImplicitFunctionDrawerChunk::get_volume_vertices_normals_indices, chunks[chunks.size()-1]);
     }
     for(int i = 0; i < count_of_threads; i++)
     {
@@ -376,37 +382,39 @@ void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vecto
         delete threads[i];
     }
 
-    for(int i = 0; i < count_of_threads; i++)
-    {
-        vector<vec3> &v = results[i].vertices;
-        vector<vec3> &n = results[i].normals;
 
-        for(int j = 0; j < v.size(); j++)
-        {
-            vertices.push_back(v[j]);
-        }
-        for(int j = 0; j < n.size(); j++)
-        {
-            normals.push_back(n[j]);
-        }
-        for(int j = 0; j < v.size(); j++)
-        {
-            indices.push_back(indices.size());
-            indices.push_back(indices.size());
-            indices.push_back(indices.size());
-        }
-    }
 
-    delete []results;
     delete []threads;
 }
+
+void ImplicitFunctionDrawer::render()
+{
+    for(int i = 0; i < chunks.size(); i++)
+    {
+        chunks[i]->render();
+    }
+
+}
+
+void ImplicitFunctionDrawer::setShader(Shader *shader)
+{
+    for(int i = 0; i < chunks.size(); i++)
+    {
+        chunks[i]->setShader(shader);
+    }
+}
+
 struct Data
 {
     int index;
-    int normal_index;
 };
-void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
-                                                                 const vec3 &step, BoundBox bound, SDF function)
+
+ImplicitFunctionDrawerChunk::ImplicitFunctionDrawerChunk(SDF function, const vec3 &step, const BoundBox &bound,
+                                                         bool inverted) : bound(bound), function(function), step(step)
+{
+}
+
+void ImplicitFunctionDrawerChunk::get_volume_vertices_normals_indices()
 {
     float size_x = bound.getSizeX();
     float size_y = bound.getSizeY();
@@ -513,4 +521,6 @@ void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm
             }
         }
     }
+
+    cout<<"Vertices for chunk: "<<vertices.size()<<endl;
 }
