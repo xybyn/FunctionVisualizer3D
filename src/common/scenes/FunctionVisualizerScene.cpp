@@ -50,26 +50,27 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
     function_shader = new AmbientDiffuseSpecularShader(camera);
     implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.05), b, true);
 
-    flat_shader = new FlatADSShader(camera);
+    //flat_shader = new FlatADSShader(camera);
     implicit_function_drawer->setShader(function_shader);
 
-    BoundBox a(vec3(-1), vec3(1));
+    //BoundBox a(vec3(-1), vec3(1));
 
 
     float pi = glm::pi<float>();
     parametric_function_drawer = new ParametricFunctionDrawer(torus, vec2(0.0f, 2 * pi), vec2(0, pi * 2),
-                                                              ivec2(80, 80));
+                                                            ivec2(80, 80));
     parametric_function_drawer->setShader(function_shader);
 
     Plane *plane = new Plane(5, 5);
     plane->setShader(function_shader);
-    bb = new BoundBoxRenderer(a);
-    bb->setShader(bb_shader);
+    //bb = new BoundBoxRenderer(a);
+    //bb->setShader(bb_shader);
 
     NormalsShader *normals_shader = new NormalsShader(camera);
 
 
-    add(parametric_function_drawer);
-    add(plane);
+    add(implicit_function_drawer);
+    //add(parametric_function_drawer);
+   // add(plane);
 
 }

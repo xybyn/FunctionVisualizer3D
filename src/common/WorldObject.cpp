@@ -36,7 +36,7 @@ void WorldObject::initialize_buffers() {
 
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * 3, normals.size() * sizeof(float) * 3,
                     &normals[0]);
-
+    if(!tex_coords.empty())
     glBufferSubData(GL_ARRAY_BUFFER, (vertices.size() + normals.size())* sizeof(float) * 3, tex_coords.size() * sizeof(float) * 2,
                     &tex_coords[0]);
     if(!tangents.empty())
