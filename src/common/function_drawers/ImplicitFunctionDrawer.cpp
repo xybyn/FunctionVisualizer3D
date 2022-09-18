@@ -327,8 +327,20 @@ vector<vec3> MarchCube(vec3* eight_points, SDF f)
 
 ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &step, const BoundBox &bound, bool inverted)
 {
-    calculate_parallel(32, vertices, normals, indices, step, bound, function);
+    //calculate_parallel(32, vertices, normals, indices, step, bound, function);
+    auto start = std::chrono::system_clock::now();
+    calculate_parallel(36, vertices, normals, indices, step, bound, function);
+    auto end = std::chrono::system_clock::now();
 
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "finished computation at " << std::ctime(&end_time)
+        << "elapsed time: " << elapsed_seconds.count() << "s"
+        << std::endl;
+
+    cout << "Count of vertices " << vertices.size() << endl;
+    cout << "Count of normals " << normals.size() << endl;
+    cout << "Count of indices " << indices.size() << endl;
     WorldObject::initialize_buffers();
 }
 

@@ -14,9 +14,8 @@ using namespace glm;
 
 void FunctionVisualizerScene::update(float dt)
 {
+    
     Scene::update(dt);
-
-
 }
 
 float f(const vec3 &v)

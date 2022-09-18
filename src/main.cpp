@@ -65,20 +65,10 @@ int main()
     TargetCamera *camera = new TargetCamera(window, vec3(0), controller);
     int selected_scene_index = 0;
 
-    vector<Scene *> scenes;
-    //scenes.push_back(new ToonScene(camera));
-    //scenes.push_back(new MaterialsScene(camera));
-    //scenes.push_back(new MultipleTexturesScene(camera));
-    //scenes.push_back(new NormalMapScene(camera));
-    scenes.push_back(new FunctionVisualizerScene(camera));
-    vector<const char *> scene_names;
-    //scene_names.push_back("Toon");
-    //scene_names.push_back("Materials");
-    //scene_names.push_back("Multi textures");
-    //scene_names.push_back("Normal map");
-    scene_names.push_back("Function Visualizer");
+    Scene* scene=new FunctionVisualizerScene(camera);
+   
     HelloWorldTask *task = new HelloWorldTask("hello world");
-    task->run();
+    //task->run();
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -108,17 +98,19 @@ int main()
 
         }
 
-
+        
         controller->update(0);
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        if (ImGui::Begin("New Window"))
-        {
-            ImGui::Combo("Scenes", &selected_scene_index, &scene_names[0], scene_names.size());
-
-            scenes[selected_scene_index]->update(dt);
-            scenes[selected_scene_index]->render();
-            ImGui::End();
-        }
+        scene->update(dt);
+        scene->render();
+        //ImGui::SetNextWindowPos(ImVec2(0, 0));
+        //if (ImGui::Begin("New Window"))
+        //{
+        //    ImGui::Combo("Scenes", &selected_scene_index, &scene_names[0], scene_names.size());
+        //
+        //    scenes[selected_scene_index]->update(dt);
+        //    scenes[selected_scene_index]->render();
+        //    ImGui::End();
+        //}
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
 
