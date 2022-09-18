@@ -31,8 +31,8 @@ protected:
 
 private:
     float radius;
-    uint sector_count;
-    uint stack_count;
+    GLuint sector_count;
+    GLuint stack_count;
 };
 
 

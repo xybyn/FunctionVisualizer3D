@@ -59,19 +59,19 @@ namespace
         return normals;
     }
 
-    vector<uint> get_indices(int horizontalDivisions, int verticalDivisions)
+    vector<GLuint> get_indices(int horizontalDivisions, int verticalDivisions)
     {
-        vector<uint> indices;
+        vector<GLuint> indices;
         for (int i = 0; i < verticalDivisions - 1; i++)
             for (int j = 0; j < horizontalDivisions - 1; j++)
             {
-                indices.push_back((uint) (i * horizontalDivisions + j));
-                indices.push_back((uint) (i * horizontalDivisions + j + 1));
-                indices.push_back((uint) ((i + 1) * horizontalDivisions + j));
+                indices.push_back((GLuint) (i * horizontalDivisions + j));
+                indices.push_back((GLuint) (i * horizontalDivisions + j + 1));
+                indices.push_back((GLuint) ((i + 1) * horizontalDivisions + j));
 
-                indices.push_back((uint) (i * horizontalDivisions + j + 1));
-                indices.push_back((uint) ((i + 1) * horizontalDivisions + j + 1));
-                indices.push_back((uint) ((i + 1) * horizontalDivisions + j));
+                indices.push_back((GLuint) (i * horizontalDivisions + j + 1));
+                indices.push_back((GLuint) ((i + 1) * horizontalDivisions + j + 1));
+                indices.push_back((GLuint) ((i + 1) * horizontalDivisions + j));
             }
 
         return indices;

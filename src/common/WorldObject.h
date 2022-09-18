@@ -49,7 +49,7 @@ protected:
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> tex_coords;
     std::vector<glm::vec3> tangents;
-    std::vector<uint> indices;
+    std::vector<GLuint> indices;
     Shader *shader = nullptr;
     Shader *normals_shader = nullptr;
     Texture *texture = nullptr;

@@ -332,7 +332,7 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3 &st
     WorldObject::initialize_buffers();
 }
 
-void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices, const glm::vec3 &step, const BoundBox &bound, SDF function)
+void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices, const glm::vec3 &step, const BoundBox &bound, SDF function)
 {
     ThreadResult *results = new ThreadResult[count_of_threads];
     thread **threads = new thread*[count_of_threads];
@@ -388,7 +388,7 @@ void ImplicitFunctionDrawer::calculate_parallel(int count_of_threads, std::vecto
     delete []threads;
 }
 
-void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<uint> &indices,
+void ImplicitFunctionDrawer::get_volume_vertices_normals_indices(std::vector<glm::vec3> &vertices, std::vector<glm::vec3> &normals, std::vector<GLuint> &indices,
                                                                  const vec3 &step, BoundBox bound, SDF function)
 {
     float size_x = bound.getSizeX();

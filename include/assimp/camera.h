@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2021, assimp team
+Copyright (c) 2006-2022, assimp team
 
 All rights reserved.
 
@@ -191,7 +191,7 @@ struct aiCamera {
               mOrthographicWidth(0.f) {}
 
     /** @brief Get a *right-handed* camera matrix from me
-     *  @param out FreeCamera matrix to be filled
+     *  @param out Camera matrix to be filled
      */
     void GetCameraMatrix(aiMatrix4x4 &out) const {
         /** todo: test ... should work, but i'm not absolutely sure */

@@ -6,11 +6,11 @@
 #include "common/shaders/DefaultShader.h"
 
 void Sphere::initialize_indices() {
-    for (uint i = 0; i < stack_count; ++i) {
-        uint k1 = i * (sector_count + 1);
-        uint k2 = k1 + sector_count + 1;
+    for (GLuint i = 0; i < stack_count; ++i) {
+        GLuint k1 = i * (sector_count + 1);
+        GLuint k2 = k1 + sector_count + 1;
 
-        for (uint j = 0; j < sector_count; ++j, ++k1, ++k2) {
+        for (GLuint j = 0; j < sector_count; ++j, ++k1, ++k2) {
             if (i != 0) {
                 indices.push_back(k1);
                 indices.push_back(k2);
