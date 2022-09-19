@@ -5,6 +5,8 @@
 #include "WorldObject.h"
 
 void WorldObject::render() {
+    if (!vertices.size())
+        return;
     if(shader)
         shader->use();
     if(texture)
@@ -25,6 +27,8 @@ WorldObject::WorldObject() {
 }
 
 void WorldObject::initialize_buffers() {
+    if (!vertices.size())
+        return;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);

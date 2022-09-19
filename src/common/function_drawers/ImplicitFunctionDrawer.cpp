@@ -622,44 +622,75 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::run()
 
 ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& step, const BoundBox& bound, bool inverted)
 {
-	chunk = new ImplicitFunctionChunk(function, step, bound, inverted);
-	task = new ImplicitFunctionChunkTask(chunk);
-	task->run();
+
+
+	float size_x = bound.getSizeX();
+	float size_y = bound.getSizeY();
+	float size_z = bound.getSizeZ();
+	int count_of_threads = 8;
+	float d_size = size_x / count_of_threads;
+	float prev = bound.getLeftBottomBack().x;
+	for (int i = 0; i < count_of_threads; i++)
+	{
+		float next = prev + d_size;
+		vec3 llb = bound.getLeftBottomBack();
+		vec3 ruf = bound.getRightUpperFront();
+
+		BoundBox v
+		{
+		   vec3(prev, llb.y, llb.z),
+		   vec3(next, ruf.y, ruf.z)
+		};
+		prev = next;
+		auto chunk = new ImplicitFunctionChunk(function, step, v, inverted);
+		auto task = new ImplicitFunctionChunkTask(chunk);
+		chunks.push_back(chunk);
+		tasks.push_back(task);
+		task->run();
+	}
+
 }
 
 void ImplicitFunctionDrawer::setShader(Shader* shader)
 {
-	chunk->setShader(shader);
+	for (int i = 0; i < chunks.size(); i++)
+	{
+		chunks[i]->setShader(shader);
+	}
 }
 
 void ImplicitFunctionDrawer::setNormalShader(Shader* shader)
 {
-	chunk->setNormalShader(shader);
+	for (int i = 0; i < chunks.size(); i++)
+	{
+		chunks[i]->setNormalShader(shader);
+	}
 }
 
 void ImplicitFunctionDrawer::update(float dt)
 {
-	if (task)
-	{
-		if (task->isInProgress())
-		{
-			cout << "task in progress " << task->getProgress() << endl;
-		}
-		if (task->isDone())
-		{
-			cout << "task is done" << endl;
 
-			delete task;
-			task = nullptr;
-			chunk->initialize_buffers();
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		if (tasks[i] && tasks[i]->isInProgress())
+		{
+			//cout << "task " << i <<" in progress " << tasks[i]->getProgress() << endl;
+		}
+		if (tasks[i] && tasks[i]->isDone())
+		{
+			delete tasks[i];
+			tasks[i] = nullptr;
+			chunks[i]->initialize_buffers();
 		}
 	}
+
 }
 
 void ImplicitFunctionDrawer::render()
 {
-	if (!task)
+	for (int i = 0; i < tasks.size(); i++)
 	{
-		chunk->render();
+		if (!tasks[i])
+			chunks[i]->render();
 	}
 }

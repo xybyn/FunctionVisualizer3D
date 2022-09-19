@@ -52,8 +52,8 @@ public:
 	void setNormalShader(Shader* shader) override;
 	void update(float dt) override;
 	void render() override;
-	ImplicitFunctionChunkTask* task = nullptr;
-	ImplicitFunctionChunk* chunk = nullptr;
+	std::vector<ImplicitFunctionChunkTask*> tasks;
+	std::vector<ImplicitFunctionChunk*> chunks;
 	///std::vector<ImplicitFunctionChunkTask*> tasks;
 };
 #endif //OPENGLPROJECT_BOUNDBOX_H
