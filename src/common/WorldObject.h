@@ -26,22 +26,22 @@ public:
 
     void setWorldPosition(const glm::vec3 &new_world_position);
 
-    void setShader(Shader *shader)
+    virtual void setShader(Shader *shader)
     {
         this->shader = shader;
     }
 
-    void setTexture(Texture *texture)
+    virtual void setTexture(Texture *texture)
     {
         this->texture = texture;
     }
 
-    void setNormalShader(Shader *normal_shader)
+    virtual void setNormalShader(Shader *normal_shader)
     {
         this->normals_shader = normal_shader;
     }
 
-protected:
+public:
     GLuint VAO;
     GLuint EBO;
     GLuint VBO;

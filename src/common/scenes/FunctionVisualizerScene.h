@@ -19,7 +19,7 @@ public:
 private:
     BoundBoxRenderer *bb = nullptr;
     DefaultShader *bb_shader = nullptr;
-    ImplicitFunctionDrawer *implicit_function_drawer = nullptr;
+    ImplicitFunctionDrawer*implicit_function_drawer = nullptr;
     ParametricFunctionDrawer *parametric_function_drawer = nullptr;
     AmbientDiffuseSpecularShader *function_shader = nullptr;
     FlatADSShader *flat_shader = nullptr;

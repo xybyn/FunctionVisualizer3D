@@ -23,6 +23,7 @@ float f(const vec3 &v)
     float x = v.x;
     float y = v.y;
     float z = v.z;
+
     //return sin(x*20);
     float a = 0.0f, b = -5.0f, c = 11.8f;
     return x * x * x * x + y * y * y * y + z * z * z * z + a * (x * x + y * y + z * z) * (x * x + y * y + z * z) +
@@ -66,10 +67,10 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
     //bb->setShader(bb_shader);
 
     NormalsShader *normals_shader = new NormalsShader(camera);
-
+    implicit_function_drawer->setNormalShader(normals_shader);
 
     add(implicit_function_drawer);
     //add(parametric_function_drawer);
-   // add(plane);
+    add(plane);
 
 }

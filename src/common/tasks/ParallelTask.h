@@ -4,12 +4,12 @@
 
 #ifndef FUNCTIONVISUALIZER3D_PARALLELTASK_H
 #define FUNCTIONVISUALIZER3D_PARALLELTASK_H
-
+#include <thread>
 template<typename T>
 class ParallelTask
 {
 public:
-    ~ParallelTask() {}
+    virtual ~ParallelTask() {}
     bool isInProgress() const
     { return in_progress; }
 
