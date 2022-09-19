@@ -332,171 +332,6 @@ ImplicitFunctionChunk::ImplicitFunctionChunk(SDF function, const glm::vec3& step
 
 }
 
-void ImplicitFunctionChunk::calculate_parallel(int count_of_threads, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::vector<GLuint>& indices, const glm::vec3& step, const BoundBox& bound, SDF function)
-{
-	ThreadResult* results = new ThreadResult[count_of_threads];
-	thread** threads = new thread * [count_of_threads];
-	float size_x = bound.getSizeX();
-	float size_y = bound.getSizeY();
-	float size_z = bound.getSizeZ();
-
-	float d_size = size_x / count_of_threads;
-	float prev = bound.getLeftBottomBack().x;
-	for (int i = 0; i < count_of_threads; i++)
-	{
-		float next = prev + d_size;
-		vec3 llb = bound.getLeftBottomBack();
-		vec3 ruf = bound.getRightUpperFront();
-
-		BoundBox v
-		{
-		   vec3(prev, llb.y, llb.z),
-		   vec3(next, ruf.y, ruf.z)
-		};
-		prev = next;
-
-		//threads[i] = new thread(&ImplicitFunctionChunk::get_volume_vertices_normals_indices, this,
-		//                        ref(results[i].vertices), ref(results[i].normals), ref(results[i].indices), ref(step), v, function);
-	}
-	for (int i = 0; i < count_of_threads; i++)
-	{
-		threads[i]->join();
-		delete threads[i];
-	}
-
-	for (int i = 0; i < count_of_threads; i++)
-	{
-		vector<vec3>& v = results[i].vertices;
-		vector<vec3>& n = results[i].normals;
-
-		for (int j = 0; j < v.size(); j++)
-		{
-			vertices.push_back(v[j]);
-		}
-		for (int j = 0; j < n.size(); j++)
-		{
-			normals.push_back(n[j]);
-		}
-		for (int j = 0; j < v.size(); j++)
-		{
-			indices.push_back(indices.size());
-			indices.push_back(indices.size());
-			indices.push_back(indices.size());
-		}
-	}
-
-	delete[]results;
-	delete[]threads;
-}
-
-void ImplicitFunctionChunk::get_volume_vertices_normals_indices()
-{
-	float size_x = bound.getSizeX();
-	float size_y = bound.getSizeY();
-	float size_z = bound.getSizeZ();
-
-	int nx = (int)ceil(size_x / step.x);
-	int ny = (int)ceil(size_y / step.y);
-	int nz = (int)ceil(size_z / step.z);
-
-	auto tree = new CubeTree<int>(bound);
-	vertices.reserve(nx * nx * nx);
-	normals.reserve(nx * nx * nx);
-	indices.reserve(6 * nx * nx * nx);
-	for (int x = 0; x < nx; x++)
-	{
-		for (int y = 0; y < ny; y++)
-		{
-			for (int z = 0; z < nz; z++)
-			{
-				vec3 offset = vec3(x, y, z);
-				vec3 points[8];
-				vec3 llb = bound.getLeftBottomBack();
-				points[0] = (vec3(0, 0, 0) + offset) * step + llb;
-				points[1] = (vec3(1, 0, 0) + offset) * step + llb;
-				points[2] = (vec3(1, 0, 1) + offset) * step + llb;
-				points[3] = (vec3(0, 0, 1) + offset) * step + llb;
-				points[4] = (vec3(0, 1, 0) + offset) * step + llb;
-				points[5] = (vec3(1, 1, 0) + offset) * step + llb;
-				points[6] = (vec3(1, 1, 1) + offset) * step + llb;
-				points[7] = (vec3(0, 1, 1) + offset) * step + llb;
-				vector<vec3> cubeVertices = MarchCube(points, function);
-				for (int i = 0; i < cubeVertices.size(); i += 3)
-				{
-					const vec3& p0 = cubeVertices[i];
-					const vec3& p1 = cubeVertices[i + 1];
-					const vec3& p2 = cubeVertices[i + 2];
-					float inv = true ? -1 : 1;
-					vec3 normal = inv * glm::normalize(glm::cross(p1 - p0, p2 - p0));
-
-					vec3 min = min_vec(min_vec(p0, p1), p2);
-					vec3 max = max_vec(max_vec(p0, p1), p2);
-
-
-					BoundBox points_bound(min - vec3(0.1f), max + vec3(0.1));
-					vector<CubeTreeUnit<int>> data;
-					tree->getData(points_bound, data);
-
-					bool found_p0 = false;
-					bool found_p1 = false;
-					bool found_p2 = false;
-					for (int j = 0; j < data.size(); ++j)
-					{
-						if (are_points_same(p0, data[j].getPosition(), 0.01f) && !found_p0)
-						{
-							found_p0 = true;
-							indices.push_back(data[j].getData());
-						}
-
-						if (are_points_same(p1, data[j].getPosition(), 0.01f) && !found_p1)
-						{
-							found_p1 = true;
-							indices.push_back(data[j].getData());
-						}
-
-						if (are_points_same(p2, data[j].getPosition(), 0.01f) && !found_p2)
-						{
-							found_p2 = true;
-							indices.push_back(data[j].getData());
-						}
-					}
-
-					if (!found_p0)
-					{
-						vertices.push_back(p0);
-						tree->insert(CubeTreeUnit<int>(p0, vertices.size() - 1));
-
-
-						indices.push_back(vertices.size() - 1);
-						normals.push_back(normal);
-
-					}
-
-					if (!found_p1)
-					{
-						vertices.push_back(p1);
-						tree->insert(CubeTreeUnit<int>(p1, vertices.size() - 1));
-
-
-						indices.push_back(vertices.size() - 1);
-						normals.push_back(normal);
-
-					}
-
-					if (!found_p2)
-					{
-						vertices.push_back(p2);
-						tree->insert(CubeTreeUnit<int>(p2, vertices.size() - 1));
-
-
-						indices.push_back(vertices.size() - 1);
-						normals.push_back(normal);
-					}
-				}
-			}
-		}
-	}
-}
 
 void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 {
@@ -509,7 +344,7 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 	int ny = (int)ceil(size_y / chunk->step.y);
 	int nz = (int)ceil(size_z / chunk->step.z);
 
-	auto tree = new CubeTree<int>(chunk->bound);
+	chunk->tree = new CubeTree<int>(chunk->bound);
 	chunk->vertices.reserve(nx * nx * nx);
 	chunk->normals.reserve(nx * nx * nx);
 	chunk->indices.reserve(6 * nx * nx * nx);
@@ -546,7 +381,7 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 
 					BoundBox points_bound(min - vec3(0.1f), max + vec3(0.1));
 					vector<CubeTreeUnit<int>> data;
-					tree->getData(points_bound, data);
+					chunk->tree->getData(points_bound, data);
 
 					bool found_p0 = false;
 					bool found_p1 = false;
@@ -575,7 +410,7 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 					if (!found_p0)
 					{
 						chunk->vertices.push_back(p0);
-						tree->insert(CubeTreeUnit<int>(p0, chunk->vertices.size() - 1));
+						chunk->tree->insert(CubeTreeUnit<int>(p0, chunk->vertices.size() - 1));
 
 
 						chunk->indices.push_back(chunk->vertices.size() - 1);
@@ -586,7 +421,7 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 					if (!found_p1)
 					{
 						chunk->vertices.push_back(p1);
-						tree->insert(CubeTreeUnit<int>(p1, chunk->vertices.size() - 1));
+						chunk->tree->insert(CubeTreeUnit<int>(p1, chunk->vertices.size() - 1));
 
 
 						chunk->indices.push_back(chunk->vertices.size() - 1);
@@ -597,7 +432,7 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 					if (!found_p2)
 					{
 						chunk->vertices.push_back(p2);
-						tree->insert(CubeTreeUnit<int>(p2, chunk->vertices.size() - 1));
+						chunk->tree->insert(CubeTreeUnit<int>(p2, chunk->vertices.size() - 1));
 
 
 						chunk->indices.push_back(chunk->vertices.size() - 1);
@@ -627,7 +462,7 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& st
 	float size_x = bound.getSizeX();
 	float size_y = bound.getSizeY();
 	float size_z = bound.getSizeZ();
-	int count_of_threads = 8;
+	int count_of_threads = 1;
 	float d_size = size_x / count_of_threads;
 	float prev = bound.getLeftBottomBack().x;
 	for (int i = 0; i < count_of_threads; i++)
@@ -669,28 +504,98 @@ void ImplicitFunctionDrawer::setNormalShader(Shader* shader)
 
 void ImplicitFunctionDrawer::update(float dt)
 {
-
+	bool all_done = true;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks[i] && tasks[i]->isInProgress())
+		if (!(tasks[i] && tasks[i]->isDone()))
 		{
-			//cout << "task " << i <<" in progress " << tasks[i]->getProgress() << endl;
+
+			all_done = false;
 		}
-		if (tasks[i] && tasks[i]->isDone())
+	}
+	if (all_done)
+	{
+		for (int i = 0; i < tasks.size(); i++)
 		{
 			delete tasks[i];
 			tasks[i] = nullptr;
-			chunks[i]->initialize_buffers();
+		}
+		merger_task = new SeparateChunksNormalsMergerTask(chunks);
+		merger_task->run();
+	}
+	if (merger_task)
+	{
+		if (merger_task->isDone())
+		{
+			delete merger_task;
+			merger_task = nullptr;
+			tasks.clear();
+			for (int i = 0; i < chunks.size(); i++)
+			{
+				
+				chunks[i]->initialize_buffers();
+			}
 		}
 	}
-
 }
 
 void ImplicitFunctionDrawer::render()
 {
-	for (int i = 0; i < tasks.size(); i++)
+	if (!merger_task && !tasks.size())
 	{
-		if (!tasks[i])
+		for (int i = 0; i < chunks.size(); i++)
 			chunks[i]->render();
 	}
+}
+
+void ImplicitFunctionDrawer::SeparateChunksNormalsMergerTask::process()
+{
+	for (int i = 0; i < chunks.size() - 1; i++)
+	{
+		auto left_chunk = chunks[i];
+		auto right_chunk = chunks[i + 1];
+		float e = 0.001f;
+		vec3 eps_x = vec3(e, 0, 0);
+		vec3 eps = vec3(e);
+		vec3 ruf = left_chunk->bound.getRightUpperFront() + eps_x;
+		vec3 llb = right_chunk->bound.getLeftBottomBack() - eps_x;
+		BoundBox bb(llb, ruf);
+		vector<CubeTreeUnit<int>> data;
+		left_chunk->tree->getData(bb, data);
+
+		for (int i = 0; i < data.size(); i++)
+		{
+			int left_vertex_index = data[i].getData();
+			const vec3& position = data[i].getPosition();
+			BoundBox eps_vloume(position - eps, position + eps);
+			vector<CubeTreeUnit<int>> right_data;
+			right_chunk->tree->getData(eps_vloume, right_data);
+
+			for (int j = 0; j < right_data.size(); j++)
+			{
+				int right_vertex_index = right_data[j].getData();
+
+				if (are_points_same(position, right_data[j].getPosition()))
+				{
+					const vec3& left_normal = left_chunk->normals[left_vertex_index];
+					const vec3& right_normal = right_chunk->normals[right_vertex_index];
+
+					vec3 avg_normal = normalize(left_normal + right_normal);
+					left_chunk->normals[left_vertex_index] = avg_normal;
+					right_chunk->normals[right_vertex_index] = avg_normal;
+
+				}
+			}
+		}
+
+	}
+
+
+	done();
+}
+
+void ImplicitFunctionDrawer::SeparateChunksNormalsMergerTask::run()
+{
+	ParallelTask::run();
+	t = new thread(&ImplicitFunctionDrawer::SeparateChunksNormalsMergerTask::process, this);
 }

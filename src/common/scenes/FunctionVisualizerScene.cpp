@@ -48,7 +48,7 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
 
 
     function_shader = new AmbientDiffuseSpecularShader(camera);
-    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.05), b, true);
+    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.25), b, true);
 
     //flat_shader = new FlatADSShader(camera);
     implicit_function_drawer->setShader(function_shader);
@@ -70,7 +70,7 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
     implicit_function_drawer->setNormalShader(normals_shader);
 
     add(implicit_function_drawer);
-    //add(parametric_function_drawer);
+   // add(parametric_function_drawer);
     add(plane);
 
 }
