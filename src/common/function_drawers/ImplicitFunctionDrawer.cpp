@@ -637,6 +637,7 @@ void ImplicitFunctionDrawer::update(float dt)
 {
 	if (task)
 		task->update();
+
 }
 
 void ImplicitFunctionDrawer::render()

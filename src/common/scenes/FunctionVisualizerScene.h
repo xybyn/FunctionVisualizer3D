@@ -8,6 +8,7 @@
 #include "common/function_drawers/ImplicitFunctionDrawer.h"
 #include "common/function_drawers/ParametricFunctionDrawer.h"
 #include "common/shaders/FlatADSShader.h"
+#include "common/shaders/NormalsShader.h"
 #include "common/primitives/BoundBoxRenderer.h"
 #include "common/abstracts/BoundBox.h"
 class FunctionVisualizerScene : public Scene {
@@ -22,6 +23,7 @@ private:
     ImplicitFunctionDrawer*implicit_function_drawer = nullptr;
     ParametricFunctionDrawer *parametric_function_drawer = nullptr;
     AmbientDiffuseSpecularShader *function_shader = nullptr;
+    NormalsShader* normals_shader = nullptr;
     FlatADSShader *flat_shader = nullptr;
     void on_progress(float progress);
 };
