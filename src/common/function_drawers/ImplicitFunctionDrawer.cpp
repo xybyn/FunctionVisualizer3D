@@ -614,16 +614,12 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 	done();
 }
 
-void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::run()
-{
-	ParallelTask::run();
-	t = new thread(&ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process, this);
-}
 
 ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& step, const BoundBox& bound, bool inverted)
 {
 	chunk = new ImplicitFunctionChunk(function, step, bound, inverted);
 	task = new ImplicitFunctionChunkTask(chunk);
+	task->onDoneEvent.add(bind(&ImplicitFunctionDrawer::on_done, this, placeholders::_1));
 	task->run();
 }
 
@@ -640,20 +636,7 @@ void ImplicitFunctionDrawer::setNormalShader(Shader* shader)
 void ImplicitFunctionDrawer::update(float dt)
 {
 	if (task)
-	{
-		if (task->isInProgress())
-		{
-			cout << "task in progress " << task->getProgress() << endl;
-		}
-		if (task->isDone())
-		{
-			cout << "task is done" << endl;
-
-			delete task;
-			task = nullptr;
-			chunk->initialize_buffers();
-		}
-	}
+		task->update();
 }
 
 void ImplicitFunctionDrawer::render()
@@ -662,4 +645,10 @@ void ImplicitFunctionDrawer::render()
 	{
 		chunk->render();
 	}
+}
+
+void ImplicitFunctionDrawer::on_done(void*)
+{
+	task = nullptr;
+	chunk->initialize_buffers();
 }

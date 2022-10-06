@@ -8,15 +8,21 @@
 #include "common/primitives/Point.h"
 #include "common/shaders/NormalsShader.h"
 #include "common/primitives/Plane.h"
-
+#include "common/tasks/HelloWorldTask.h"
 using namespace std;
 using namespace glm;
-
+float progress = 0.0f;
 void FunctionVisualizerScene::update(float dt)
 {
-    
     Scene::update(dt);
+    ImGui::ProgressBar(progress);
 }
+
+void FunctionVisualizerScene::on_progress(float p)
+{
+    progress = p;
+}
+
 
 float f(const vec3 &v)
 {
@@ -45,32 +51,33 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase *camera) : Scene(cam
     auto p1 = vec3(5.5);
     bb_shader = new DefaultShader(camera, ROOT_DIR "src/shaders/bound_box.vert", ROOT_DIR "src/shaders/bound_box.frag");
     BoundBox b(p0, p1);
-
-
+    
+    
     function_shader = new AmbientDiffuseSpecularShader(camera);
-    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.05), b, true);
-
-    //flat_shader = new FlatADSShader(camera);
-    implicit_function_drawer->setShader(function_shader);
-
-    //BoundBox a(vec3(-1), vec3(1));
-
-
-    float pi = glm::pi<float>();
-    parametric_function_drawer = new ParametricFunctionDrawer(torus, vec2(0.0f, 2 * pi), vec2(0, pi * 2),
-                                                            ivec2(80, 80));
-    parametric_function_drawer->setShader(function_shader);
-
+    implicit_function_drawer = new ImplicitFunctionDrawer(f, vec3(0.025), b, true);
+    implicit_function_drawer->task->onProcessEvent.add(bind(& FunctionVisualizerScene::on_progress, this, placeholders::_1));
+    //
+    ////flat_shader = new FlatADSShader(camera);
+    //implicit_function_drawer->setShader(function_shader);
+    //
+    ////BoundBox a(vec3(-1), vec3(1));
+    //
+    //
+    //float pi = glm::pi<float>();
+    //parametric_function_drawer = new ParametricFunctionDrawer(torus, vec2(0.0f, 2 * pi), vec2(0, pi * 2),
+    //                                                        ivec2(80, 80));
+    //parametric_function_drawer->setShader(function_shader);
+    //
     Plane *plane = new Plane(5, 5);
     plane->setShader(function_shader);
-    //bb = new BoundBoxRenderer(a);
-    //bb->setShader(bb_shader);
-
-    NormalsShader *normals_shader = new NormalsShader(camera);
-    implicit_function_drawer->setNormalShader(normals_shader);
-
+    ////bb = new BoundBoxRenderer(a);
+    ////bb->setShader(bb_shader);
+    //
+    //NormalsShader *normals_shader = new NormalsShader(camera);
+    //implicit_function_drawer->setNormalShader(normals_shader);
+    //
     add(implicit_function_drawer);
-    //add(parametric_function_drawer);
+    ////add(parametric_function_drawer);
     add(plane);
 
 }
