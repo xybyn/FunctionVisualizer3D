@@ -29,7 +29,6 @@ public:
     virtual std::string getName() const = 0;
 protected:
     CameraBase *camera;
-private:
     std::vector<WorldObject *> objects;
 
 };

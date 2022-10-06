@@ -643,7 +643,7 @@ void ImplicitFunctionDrawer::update(float dt)
 	{
 		if (task->isInProgress())
 		{
-			cout << "task in progress " << task->getProgress() << endl;
+			//cout << "task in progress " << task->getProgress() << endl;
 		}
 		if (task->isDone())
 		{
