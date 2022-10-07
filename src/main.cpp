@@ -23,6 +23,7 @@
 #include "common/scenes/MultipleTexturesScene.h"
 #include "common/scenes/NormalMapScene.h"
 #include "common/scenes/FunctionVisualizerScene.h"
+#include "common/scenes/RaymarchingScene.h"
 #include "common/tasks/HelloWorldTask.h"
 
 using namespace std;
@@ -65,10 +66,9 @@ int main()
     TargetCamera *camera = new TargetCamera(window, vec3(0), controller);
     int selected_scene_index = 0;
 
-    Scene* scene=new FunctionVisualizerScene(camera);
+    Scene* scene=new RaymarchingScene(camera);
    
-    HelloWorldTask *task = new HelloWorldTask("hello world");
-    //task->run();
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -82,23 +82,7 @@ int main()
         double current_time = glfwGetTime();
         double dt = current_time - prev_time;
         prev_time = current_time;
-        if (task)
-        {
-            if (task->isInProgress())
-            {
-                //cout << "task in progress" << endl;
-                //cout<<task->getProgress()<<endl;
-            }
-            if (task->isDone())
-            {
-               // cout << "task is done, result: " << task->getResult()<< endl;
-                delete task;
-                task = nullptr;
-            }
 
-        }
-
-        
         controller->update(0);
         scene->update(dt);
         scene->render();
