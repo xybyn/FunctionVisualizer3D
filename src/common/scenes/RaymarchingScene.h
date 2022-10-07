@@ -9,6 +9,7 @@
 #include "Scene.h"
 #include "common/shaders/AmbientDiffuseSpecularShader.h"
 #include "common/shaders/DefaultShader.h"
+#include "common/shaders/ComputeShader.h"
 class RaymarchingScene : public Scene {
 public:
     RaymarchingScene(CameraBase* camera);
@@ -17,6 +18,7 @@ public:
     std::string getName() const override { return "RaymarchingScene"; }
 private:
     Shader* shader = nullptr;
+    ComputeShader* compute_shader = nullptr;
 };
 
 

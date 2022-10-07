@@ -15,7 +15,9 @@ void RaymarchingScene::update(float dt)
 
 RaymarchingScene::RaymarchingScene(CameraBase* camera) : Scene(camera)
 {
-    shader = new Shader(ROOT_DIR "src/shaders/raymarching.vert", ROOT_DIR "src/shaders/raymarching.frag", nullptr, ROOT_DIR "src/shaders/raymarching.comp");
+    shader = new Shader(ROOT_DIR "src/shaders/raymarching.vert", ROOT_DIR "src/shaders/raymarching.frag");
+
+    compute_shader = new ComputeShader(ROOT_DIR "src/shaders/raymarching.comp");
     FullscreenRectangle* rect = new FullscreenRectangle();
     rect->setShader(shader);
     add(rect);
