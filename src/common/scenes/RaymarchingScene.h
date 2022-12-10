@@ -14,9 +14,10 @@ class RaymarchingScene : public Scene {
 public:
     RaymarchingScene(CameraBase* camera);
     void update(float dt) override;
-
+    void render() override;
     std::string getName() const override { return "RaymarchingScene"; }
 private:
+    float time, deltaT, speed, angle;
     Shader* shader = nullptr;
     ComputeShader* compute_shader = nullptr;
 };

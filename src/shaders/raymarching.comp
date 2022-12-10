@@ -8,8 +8,8 @@ uniform vec3 BlackHolePos1 = vec3(5,0,0);
 uniform float Gravity2 = 1000.0;
 uniform vec3 BlackHolePos2 = vec3(-5,0,0);
 
-uniform float ParticleMass = 0.1;
-uniform float ParticleInvMass = 1.0 / 0.1;
+uniform float ParticleMass = 1.1;
+uniform float ParticleInvMass = 1.0 / 1.1;
 uniform float DeltaT = 0.0005;
 uniform float MaxDist = 45.0;
 

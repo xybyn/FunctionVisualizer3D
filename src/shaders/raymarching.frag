@@ -1,8 +1,11 @@
-#version 420 core
+#version 430
 
-out vec4 outColor;
+in vec3 Position;
 
-void main()
-{
-    outColor = vec4(0, 1, 0, 1);
+uniform vec4 Color;
+
+layout( location = 0 ) out vec4 FragColor;
+
+void main() {
+  FragColor = Color;
 }

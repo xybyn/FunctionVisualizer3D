@@ -1,6 +1,15 @@
-#version 430 core
-layout (location = 0) in vec3 location_position;
+#version 430
+
+layout (location = 0) in vec4 VertexPosition;
+
+out vec3 Position;
+
+uniform mat4 ModelViewMatrix;
+uniform mat3 NormalMatrix;
+uniform mat4 MVP;
+
 void main()
 {
-    gl_Position = vec4(location_position, 1.0);
+    Position = (ModelViewMatrix * VertexPosition).xyz;
+    gl_Position = MVP * VertexPosition;
 }
