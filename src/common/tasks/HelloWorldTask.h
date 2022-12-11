@@ -14,21 +14,15 @@ class HelloWorldTask : public ParallelTask<int>
 public:
     const char* s;
     HelloWorldTask(const char *s) : s(s){}
-    void run() override
-    {
-        ParallelTask::run();
 
-        t = new std::thread(&HelloWorldTask::process, this, s);
-    }
     ~HelloWorldTask()
     {
-        t->join();
-        delete t;
+        if(t->joinable())
+            t->join();
     }
 
 private:
-    std::thread *t = nullptr;
-    void process(const char *s)
+    void process() override
     {
         std::cout<<"hello world task started"<<std::endl;
         std::cout<<s<<std::endl;

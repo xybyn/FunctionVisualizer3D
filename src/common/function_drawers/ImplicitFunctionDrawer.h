@@ -38,22 +38,17 @@ public:
 	public:
 		ImplicitFunctionChunkTask(ImplicitFunctionChunk* chunk) : chunk(chunk) {}
 
-		void process();
-		void run() override;
-		~ImplicitFunctionChunkTask() {
-			t->join();
-			delete t;
-		}
+		void process() override;
 	private:
-		std::thread* t;
 		ImplicitFunctionChunk* chunk = nullptr;
 	};
 	void setShader(Shader* shader) override;
 	void setNormalShader(Shader* shader) override;
 	void update(float dt) override;
 	void render() override;
-	std::vector<ImplicitFunctionChunkTask*> tasks;
-	std::vector<ImplicitFunctionChunk*> chunks;
-	///std::vector<ImplicitFunctionChunkTask*> tasks;
+	ImplicitFunctionChunkTask* task = nullptr;
+	ImplicitFunctionChunk* chunk = nullptr;
+private:
+	void on_done(void*);
 };
 #endif //OPENGLPROJECT_BOUNDBOX_H

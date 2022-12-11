@@ -23,6 +23,7 @@ private:
     ParametricFunctionDrawer *parametric_function_drawer = nullptr;
     AmbientDiffuseSpecularShader *function_shader = nullptr;
     FlatADSShader *flat_shader = nullptr;
+    void on_progress(float progress);
 };
 
 

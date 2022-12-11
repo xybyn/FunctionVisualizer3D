@@ -614,41 +614,13 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 	done();
 }
 
-void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::run()
-{
-	ParallelTask::run();
-	t = new thread(&ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process, this);
-}
 
 ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& step, const BoundBox& bound, bool inverted)
 {
-
-
-	float size_x = bound.getSizeX();
-	float size_y = bound.getSizeY();
-	float size_z = bound.getSizeZ();
-	int count_of_threads = 8;
-	float d_size = size_x / count_of_threads;
-	float prev = bound.getLeftBottomBack().x;
-	for (int i = 0; i < count_of_threads; i++)
-	{
-		float next = prev + d_size;
-		vec3 llb = bound.getLeftBottomBack();
-		vec3 ruf = bound.getRightUpperFront();
-
-		BoundBox v
-		{
-		   vec3(prev, llb.y, llb.z),
-		   vec3(next, ruf.y, ruf.z)
-		};
-		prev = next;
-		auto chunk = new ImplicitFunctionChunk(function, step, v, inverted);
-		auto task = new ImplicitFunctionChunkTask(chunk);
-		chunks.push_back(chunk);
-		tasks.push_back(task);
-		task->run();
-	}
-
+	chunk = new ImplicitFunctionChunk(function, step, bound, inverted);
+	task = new ImplicitFunctionChunkTask(chunk);
+	task->onDoneEvent.add(bind(&ImplicitFunctionDrawer::on_done, this, placeholders::_1));
+	task->run();
 }
 
 void ImplicitFunctionDrawer::setShader(Shader* shader)
@@ -669,21 +641,8 @@ void ImplicitFunctionDrawer::setNormalShader(Shader* shader)
 
 void ImplicitFunctionDrawer::update(float dt)
 {
-
-	for (int i = 0; i < tasks.size(); i++)
-	{
-		if (tasks[i] && tasks[i]->isInProgress())
-		{
-			//cout << "task " << i <<" in progress " << tasks[i]->getProgress() << endl;
-		}
-		if (tasks[i] && tasks[i]->isDone())
-		{
-			delete tasks[i];
-			tasks[i] = nullptr;
-			chunks[i]->initialize_buffers();
-		}
-	}
-
+	if (task)
+		task->update();
 }
 
 void ImplicitFunctionDrawer::render()
@@ -693,4 +652,10 @@ void ImplicitFunctionDrawer::render()
 		if (!tasks[i])
 			chunks[i]->render();
 	}
+}
+
+void ImplicitFunctionDrawer::on_done(void*)
+{
+	task = nullptr;
+	chunk->initialize_buffers();
 }
