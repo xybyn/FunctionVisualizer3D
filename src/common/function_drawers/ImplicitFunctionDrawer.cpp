@@ -509,9 +509,9 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 	int ny = (int)ceil(size_y / chunk->step.y);
 	int nz = (int)ceil(size_z / chunk->step.z);
 
-	auto tree = new CubeTree<int>(chunk->bound);
 	chunk->vertices.reserve(nx * nx * nx);
 	chunk->normals.reserve(nx * nx * nx);
+	chunk->indices.reserve(6 * nx * nx * nx);
 	chunk->indices.reserve(6 * nx * nx * nx);
 	int counter = 0;
 	for (int x = 0; x < nx; x++)
@@ -540,69 +540,32 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 					float inv = true ? -1 : 1;
 					vec3 normal = inv * glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
-					vec3 min = min_vec(min_vec(p0, p1), p2);
-					vec3 max = max_vec(max_vec(p0, p1), p2);
 
 
-					BoundBox points_bound(min - vec3(0.1f), max + vec3(0.1));
-					vector<CubeTreeUnit<int>> data;
-					tree->getData(points_bound, data);
 
-					bool found_p0 = false;
-					bool found_p1 = false;
-					bool found_p2 = false;
-					for (int j = 0; j < data.size(); ++j)
-					{
-						if (are_points_same(p0, data[j].getPosition(), 0.01f) && !found_p0)
-						{
-							found_p0 = true;
-							chunk->indices.push_back(data[j].getData());
-						}
-
-						if (are_points_same(p1, data[j].getPosition(), 0.01f) && !found_p1)
-						{
-							found_p1 = true;
-							chunk->indices.push_back(data[j].getData());
-						}
-
-						if (are_points_same(p2, data[j].getPosition(), 0.01f) && !found_p2)
-						{
-							found_p2 = true;
-							chunk->indices.push_back(data[j].getData());
-						}
-					}
-
-					if (!found_p0)
-					{
-						chunk->vertices.push_back(p0);
-						tree->insert(CubeTreeUnit<int>(p0, chunk->vertices.size() - 1));
+					chunk->vertices.push_back(p0);
 
 
-						chunk->indices.push_back(chunk->vertices.size() - 1);
-						chunk->normals.push_back(normal);
 
-					}
-
-					if (!found_p1)
-					{
-						chunk->vertices.push_back(p1);
-						tree->insert(CubeTreeUnit<int>(p1, chunk->vertices.size() - 1));
+					chunk->indices.push_back(chunk->vertices.size() - 1);
+					chunk->normals.push_back(normal);
 
 
-						chunk->indices.push_back(chunk->vertices.size() - 1);
-						chunk->normals.push_back(normal);
-
-					}
-
-					if (!found_p2)
-					{
-						chunk->vertices.push_back(p2);
-						tree->insert(CubeTreeUnit<int>(p2, chunk->vertices.size() - 1));
+					chunk->vertices.push_back(p1);
 
 
-						chunk->indices.push_back(chunk->vertices.size() - 1);
-						chunk->normals.push_back(normal);
-					}
+
+					chunk->indices.push_back(chunk->vertices.size() - 1);
+					chunk->normals.push_back(normal);
+
+
+
+					chunk->vertices.push_back(p2);
+
+
+					chunk->indices.push_back(chunk->vertices.size() - 1);
+					chunk->normals.push_back(normal);
+
 
 
 				}
@@ -625,18 +588,12 @@ ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& st
 
 void ImplicitFunctionDrawer::setShader(Shader* shader)
 {
-	for (int i = 0; i < chunks.size(); i++)
-	{
-		chunks[i]->setShader(shader);
-	}
+	chunk->setShader(shader);
 }
 
 void ImplicitFunctionDrawer::setNormalShader(Shader* shader)
 {
-	for (int i = 0; i < chunks.size(); i++)
-	{
-		chunks[i]->setNormalShader(shader);
-	}
+	chunk->setNormalShader(shader);
 }
 
 void ImplicitFunctionDrawer::update(float dt)
@@ -647,11 +604,10 @@ void ImplicitFunctionDrawer::update(float dt)
 
 void ImplicitFunctionDrawer::render()
 {
-	for (int i = 0; i < tasks.size(); i++)
-	{
-		if (!tasks[i])
-			chunks[i]->render();
-	}
+
+	if (!task)
+		chunk->render();
+
 }
 
 void ImplicitFunctionDrawer::on_done(void*)
