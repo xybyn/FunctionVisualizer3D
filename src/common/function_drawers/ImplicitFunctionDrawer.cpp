@@ -326,8 +326,8 @@ namespace {
 	}
 }
 
-ImplicitFunctionChunk::ImplicitFunctionChunk(SDF function, const glm::vec3& step, const BoundBox& bound, bool inverted)
-	: function(function), step(step), bound(bound), inverted(inverted)
+ImplicitFunctionChunk::ImplicitFunctionChunk(const ImplicitFunctionConfiguration &config)
+	: config(config)
 {
 
 }
@@ -391,6 +391,9 @@ void ImplicitFunctionChunk::calculate_parallel(int count_of_threads, std::vector
 
 void ImplicitFunctionChunk::get_volume_vertices_normals_indices()
 {
+	auto bound = config.volume;
+	auto step = config.steps;
+	auto function = config.f;
 	float size_x = bound.getSizeX();
 	float size_y = bound.getSizeY();
 	float size_z = bound.getSizeZ();
@@ -500,14 +503,17 @@ void ImplicitFunctionChunk::get_volume_vertices_normals_indices()
 
 void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 {
+	//auto bound = chunk->config.volume;
+	//auto step = chunk->config.steps;
+	//auto function = chunk->config.f;
 
-	float size_x = chunk->bound.getSizeX();
-	float size_y = chunk->bound.getSizeY();
-	float size_z = chunk->bound.getSizeZ();
+	float size_x = chunk->config.volume.getSizeX();
+	float size_y = chunk->config.volume.getSizeY();
+	float size_z = chunk->config.volume.getSizeZ();
 
-	int nx = (int)ceil(size_x / chunk->step.x);
-	int ny = (int)ceil(size_y / chunk->step.y);
-	int nz = (int)ceil(size_z / chunk->step.z);
+	int nx = (int)ceil(size_x / chunk->config.steps.x);
+	int ny = (int)ceil(size_y / chunk->config.steps.y);
+	int nz = (int)ceil(size_z / chunk->config.steps.z);
 
 	chunk->vertices.reserve(nx * nx * nx);
 	chunk->normals.reserve(nx * nx * nx);
@@ -522,16 +528,17 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 			{
 				vec3 offset = vec3(x, y, z);
 				vec3 points[8];
-				vec3 llb = chunk->bound.getLeftBottomBack();
-				points[0] = (vec3(0, 0, 0) + offset) * chunk->step + llb;
-				points[1] = (vec3(1, 0, 0) + offset) * chunk->step + llb;
-				points[2] = (vec3(1, 0, 1) + offset) * chunk->step + llb;
-				points[3] = (vec3(0, 0, 1) + offset) * chunk->step + llb;
-				points[4] = (vec3(0, 1, 0) + offset) * chunk->step + llb;
-				points[5] = (vec3(1, 1, 0) + offset) * chunk->step + llb;
-				points[6] = (vec3(1, 1, 1) + offset) * chunk->step + llb;
-				points[7] = (vec3(0, 1, 1) + offset) * chunk->step + llb;
-				vector<vec3> cubeVertices = MarchCube(points, chunk->function);
+				vec3 llb = chunk->config.volume.getLeftBottomBack();
+				points[0] = (vec3(0, 0, 0) + offset) * chunk->config.steps + llb;
+				points[1] = (vec3(1, 0, 0) + offset) * chunk->config.steps + llb;
+				points[2] = (vec3(1, 0, 1) + offset) * chunk->config.steps + llb;
+				points[3] = (vec3(0, 0, 1) + offset) * chunk->config.steps + llb;
+				points[4] = (vec3(0, 1, 0) + offset) * chunk->config.steps + llb;
+				points[5] = (vec3(1, 1, 0) + offset) * chunk->config.steps + llb;
+				points[6] = (vec3(1, 1, 1) + offset) * chunk->config.steps + llb;
+				points[7] = (vec3(0, 1, 1) + offset) * chunk->config.steps + llb;
+				vector<vec3> cubeVertices = MarchCube(points, chunk->config.f);
+
 				for (int i = 0; i < cubeVertices.size(); i += 3)
 				{
 					const vec3& p0 = cubeVertices[i];
@@ -578,17 +585,25 @@ void ImplicitFunctionDrawer::ImplicitFunctionChunkTask::process()
 }
 
 
-ImplicitFunctionDrawer::ImplicitFunctionDrawer(SDF function, const glm::vec3& step, const BoundBox& bound, bool inverted)
+ImplicitFunctionDrawer::ImplicitFunctionDrawer(const ImplicitFunctionConfiguration& config)
 {
-	chunk = new ImplicitFunctionChunk(function, step, bound, inverted);
+	chunk = new ImplicitFunctionChunk(config);
 	task = new ImplicitFunctionChunkTask(chunk);
 	task->onDoneEvent.add(bind(&ImplicitFunctionDrawer::on_done, this, placeholders::_1));
-	task->run();
+	if (!config.postpone)
+	{
+		build();
+	}
 }
 
 void ImplicitFunctionDrawer::setShader(Shader* shader)
 {
 	chunk->setShader(shader);
+}
+
+void ImplicitFunctionDrawer::build()
+{
+	task->run();
 }
 
 void ImplicitFunctionDrawer::setNormalShader(Shader* shader)

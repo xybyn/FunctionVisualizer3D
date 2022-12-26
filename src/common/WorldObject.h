@@ -21,6 +21,10 @@ public:
     WorldObject();
 
     virtual void render();
+    virtual void build() {}
+    virtual void addOnDoneEvent() {}
+    virtual void addOnProcessEvent() {}
+
     virtual void update(float dt) {}
 
 

@@ -7,50 +7,59 @@
 #include "common/abstracts/BoundBox.h"
 #include "common/tasks/ParallelTask.h"
 
-typedef glm::vec3 (*DoubleVariableFunction)(float, float);
+typedef std::function<glm::vec3(const glm::vec2&)> DoubleVarFunction;
+
+struct ParametricFunctionConfiguration
+{
+	const char* x_func;
+	const char* y_func;
+	const char* z_func;
+	DoubleVarFunction f;
+	glm::vec2 u_range;
+	glm::vec2 v_range;
+	glm::ivec2 divisions = glm::ivec2(80, 80);
+	bool inverted = false;
+	bool postpone = false;
+};
 
 class ParametricFunctionDrawer : public WorldObject
 {
 public:
-    CubeTree<int> *tree;
-    BoundBox *bb = nullptr;
+	CubeTree<int>* tree;
+	BoundBox* bb = nullptr;
 
-    void update(float dt) override;
+	void update(float dt) override;
+	void build() override;
 
-    void render() override;
+	void render() override;
 
 public:
-    ParametricFunctionDrawer(DoubleVariableFunction func, const glm::vec2 &u_range, const glm::vec2 &v_range,
-                             const glm::ivec2 &divisions, bool inverted = false);
+	ParametricFunctionDrawer(const ParametricFunctionConfiguration& config);
 
 
-private:
-    glm::vec2 u_range;
-    glm::vec2 v_range;
-    glm::ivec2 divisions;
-    bool inverted;
-    DoubleVariableFunction func;
-    class ParametricFunctionDrawerTask : public ParallelTask<int>
-    {
-    public:
-        ParametricFunctionDrawerTask(ParametricFunctionDrawer *owner);
+public:
+	ParametricFunctionConfiguration config;
+	class ParametricFunctionDrawerTask : public ParallelTask<int>
+	{
+	public:
+		ParametricFunctionDrawerTask(ParametricFunctionDrawer* owner);
 
-        void run() override;
+		void run() override;
 
-        ~ParametricFunctionDrawerTask()
-        {
-            t->join();
-            delete t;
-        }
+		~ParametricFunctionDrawerTask()
+		{
+			t->join();
+			delete t;
+		}
 
-    private:
-        std::thread *t = nullptr;
+	private:
+		std::thread* t = nullptr;
 
-        void process(ParametricFunctionDrawerTask *owner);
+		void process(ParametricFunctionDrawerTask* owner);
 
-        ParametricFunctionDrawer *owner = nullptr;
-    } *task = nullptr;
-    friend  class ParametricFunctionDrawerTask;
+		ParametricFunctionDrawer* owner = nullptr;
+	} *task = nullptr;
+	friend  class ParametricFunctionDrawerTask;
 };
 
 #endif //OPENGLPROJECT_PARAMETRICFUNCTIONDRAWER_H

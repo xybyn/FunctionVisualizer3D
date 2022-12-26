@@ -5,7 +5,8 @@
 #include "Scene.h"
 
 void Scene::render() {
-    for (int i = 0; i < objects.size(); ++i) {
-        objects[i]->render();
-    }
+	for (auto& it = objects.begin(); it != objects.end(); it++)
+	{
+		(*it)->render();
+	}
 }

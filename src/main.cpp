@@ -61,6 +61,9 @@ int main()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 420");
+    auto font = io.Fonts->AddFontFromFileTTF(ROOT_DIR "resources/fonts/NotoSans-Regular.ttf", 20);
+   // auto font = io.Fonts->AddFontDefault();
+    //ImGui::PushFont(font);
     InputController *controller = new InputController(window);
     TargetCamera *camera = new TargetCamera(window, vec3(0), controller);
     int selected_scene_index = 0;

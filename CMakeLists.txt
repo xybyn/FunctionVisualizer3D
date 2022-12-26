@@ -75,6 +75,7 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 # Create virtual folders to make it look nicer in VS
 if(MSVC_IDE)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 	# Macro to preserve source files hierarchy in the IDE
 	macro(GroupSources curdir)
 		file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir} ${PROJECT_SOURCE_DIR}/${curdir}/*)
