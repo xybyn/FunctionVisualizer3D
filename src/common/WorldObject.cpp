@@ -7,8 +7,14 @@
 void WorldObject::render() {
     if (!vertices.size())
         return;
-    if(shader)
+    if (shader)
+    {
         shader->use();
+        if(parent)
+            shader->setMat4("transform", parent->getTransform() * transform_matrix);
+        else
+            shader->setMat4("transform", transform_matrix);
+    }
     if(texture)
         texture->bind();
     glBindVertexArray(VAO);
@@ -17,10 +23,11 @@ void WorldObject::render() {
         return;
     normals_shader->use();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 void WorldObject::setWorldPosition(const glm::vec3 &new_world_position) {
-
+    transform_matrix = glm::translate(glm::mat4(1),  new_world_position);
 }
 
 WorldObject::WorldObject() {
@@ -38,6 +45,7 @@ void WorldObject::initialize_buffers() {
     glBufferData(GL_ARRAY_BUFFER, (vertices.size()* 3 + normals.size()* 3+ tex_coords.size()* 2) * sizeof(float), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float) * 3, &vertices[0]);
 
+    if(!normals.empty())
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * 3, normals.size() * sizeof(float) * 3,
                     &normals[0]);
     if(!tex_coords.empty())

@@ -44,7 +44,14 @@ public:
     {
         this->normals_shader = normal_shader;
     }
-
+    void addChild(WorldObject* child)
+    {
+        children.push_back(child);
+        child->setParent(this);
+    }
+    glm::mat4 getTransform() const {
+        return transform_matrix;
+    }
 public:
     GLuint VAO;
     GLuint EBO;
@@ -59,10 +66,16 @@ public:
     Texture *texture = nullptr;
 
     void initialize_buffers();
+protected:
+    void setParent(WorldObject* parent)
+    {
+        this->parent = parent;
+    }
+    glm::mat4 transform_matrix = glm::mat4(1);
+    WorldObject* parent = nullptr;
 
 private:
-    glm::mat4 translate_matrix;
-
+    std::vector<WorldObject*> children;
 };
 
 
