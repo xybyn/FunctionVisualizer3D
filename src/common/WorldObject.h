@@ -28,8 +28,14 @@ public:
     virtual void update(float dt) {}
 
 
-    void setWorldPosition(const glm::vec3 &new_world_position);
-
+    void setLocalPosition(const glm::vec3 &new_world_position);
+    void setWorldPosition(const glm::vec3 &new_local_position);
+    glm::vec3 getWorldPosition() const {
+        return getParentTransform() * glm::vec4(position, 1);
+    }
+    glm::vec3 getLocalPosition() const {
+        return  position;
+    }
     virtual void setShader(Shader *shader)
     {
         this->shader = shader;
@@ -50,7 +56,12 @@ public:
         child->setParent(this);
     }
     glm::mat4 getTransform() const {
-        return transform_matrix;
+        return transform_matrix * getParentTransform();
+    }
+    glm::mat4 getParentTransform() const {
+        if (parent)
+            return parent->getTransform();
+        return glm::mat4(1);
     }
 public:
     GLuint VAO;
@@ -64,7 +75,7 @@ public:
     Shader *shader = nullptr;
     Shader *normals_shader = nullptr;
     Texture *texture = nullptr;
-
+    glm::vec3 position;
     void initialize_buffers();
 protected:
     void setParent(WorldObject* parent)

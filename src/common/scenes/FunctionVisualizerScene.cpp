@@ -121,10 +121,22 @@ class ParametricFunction* cuurent_parametric_function = nullptr;
 ImplicitFunctionDrawer* current_implicit_function_drawer = nullptr;
 ParametricFunctionDrawer* current_parametric_function_drawer = nullptr;
 
+std::vector<Manipulator*> mans;
 
 void FunctionVisualizerScene::update(float dt)
 {
 	Scene::update(dt);
+	for (int i = 0; i < mans.size(); i++)
+	{
+		vec3 pos = mans[i]->getWorldPosition();
+		float* v = (float*)&pos;
+		char buff[256];
+		sprintf(buff, "Position %d %d\n", i% mans.size(), i/ mans.size());
+		ImGui::DragFloat3(buff, v, 0.2, -10, 10);
+		mans[i]->setWorldPosition(pos);
+	}
+	//man->setWorldPosition(glm::vec3(v[0], v[1], v[2]));
+
 	//static bool plane_added = true;
 	//
 	//if (ImGui::BeginTabBar(""))
@@ -442,15 +454,15 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase* camera) : Scene(cam
 
 	plane = new Plane(5, 5);
 	plane->setShader(function_shader);
-	auto man = new Manipulator(camera);
-	add(man);
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			auto man = new Manipulator(camera);
+			man->setWorldPosition(vec3(i - 2, 0, j - 2));
+			mans.push_back(man);
+			add(man);
 
-	man->setWorldPosition(glm::vec3(2, 0, 0));
-	//auto line = new Line(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	//auto single_color_shader = new SingleColorShader(camera);
-	//single_color_shader->setColor(glm::vec3(0, 1, 0));
-	//line->setShader(single_color_shader);
-	//add(line);
-
-	//add(plane);
+		}
+	}
 }

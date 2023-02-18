@@ -8,6 +8,7 @@ out vec3 from_vert_position;
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 transform;
 
 void main()
 {
@@ -18,5 +19,6 @@ void main()
     gl_Position =
     projection*
     view*
+    transform*
     vec4(location_position, 1.0);
 }

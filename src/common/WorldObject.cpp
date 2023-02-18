@@ -10,10 +10,7 @@ void WorldObject::render() {
     if (shader)
     {
         shader->use();
-        if(parent)
-            shader->setMat4("transform", parent->getTransform() * transform_matrix);
-        else
-            shader->setMat4("transform", transform_matrix);
+        shader->setMat4("transform", getTransform());
     }
     if(texture)
         texture->bind();
@@ -26,11 +23,20 @@ void WorldObject::render() {
     glBindVertexArray(0);
 }
 
-void WorldObject::setWorldPosition(const glm::vec3 &new_world_position) {
-    transform_matrix = glm::translate(glm::mat4(1),  new_world_position);
+void WorldObject::setLocalPosition(const glm::vec3 &new_local_position) {
+    position = new_local_position;
+    transform_matrix = glm::translate(glm::mat4(1), position);
+}
+
+void WorldObject::setWorldPosition(const glm::vec3& new_world_position)
+{
+    position = glm::inverse(getParentTransform()) * glm::vec4(new_world_position, 1);
+    transform_matrix = glm::translate(glm::mat4(1), position);
 }
 
 WorldObject::WorldObject() {
+    setLocalPosition(glm::vec3(0));
+    setWorldPosition(glm::vec3(0));
 }
 
 void WorldObject::initialize_buffers() {
