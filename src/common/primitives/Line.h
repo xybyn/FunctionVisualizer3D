@@ -13,6 +13,10 @@ class Line : public WorldObject
 public:
     void render() override;
     Line(const glm::vec3& p0, const glm::vec3& p1);
+    void setP0(const glm::vec3& p0);
+    void setP1(const glm::vec3& p1);
+    glm::vec3 getP0() const { return vertices[0]; }
+    glm::vec3 getP1() const { return vertices[1]; }
 };
 
 

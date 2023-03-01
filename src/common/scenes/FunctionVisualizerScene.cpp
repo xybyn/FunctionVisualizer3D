@@ -121,191 +121,68 @@ class ParametricFunction* cuurent_parametric_function = nullptr;
 ImplicitFunctionDrawer* current_implicit_function_drawer = nullptr;
 ParametricFunctionDrawer* current_parametric_function_drawer = nullptr;
 
-std::vector<Manipulator*> mans;
+std::vector<vector<Manipulator*>> mans;
+
+float lerp(float a, float b, float t)
+{
+	return a * (1 - t) + b * t;
+}
+glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, float t)
+{
+	return a * (1 - t) + b * t;
+}
+Line* line;
+Line* line2;
+Line* line3;
+Sphere* sphere;
+
+
+vec3 l(std::vector<pair<vec3, vec3>>& lines, float t = 0, int i = 0)
+{
+	if (i == lines.size() - 1)
+	{
+		vec3 v = lerp(lines[i].first, lines[i].second, t);
+		return v;
+	}
+	vec3 v = lerp(lines[i].first, lines[i].second, t);
+	return lerp(v, l(lines, t, i + 1), t);
+}
+vector<Line*> lines;
 
 void FunctionVisualizerScene::update(float dt)
 {
 	Scene::update(dt);
-	for (int i = 0; i < mans.size(); i++)
-	{
-		vec3 pos = mans[i]->getWorldPosition();
-		float* v = (float*)&pos;
-		char buff[256];
-		sprintf(buff, "Position %d %d\n", i% mans.size(), i/ mans.size());
-		ImGui::DragFloat3(buff, v, 0.2, -10, 10);
-		mans[i]->setWorldPosition(pos);
-	}
-	//man->setWorldPosition(glm::vec3(v[0], v[1], v[2]));
+	//static float u = 0;
+	//static float v = 0;
+	//
+	//ImGui::DragFloat("u", &u, 0.01, 0, 1);
+	//ImGui::DragFloat("v", &v, 0.01, 0, 1);
 
-	//static bool plane_added = true;
-	//
-	//if (ImGui::BeginTabBar(""))
+
+	
+
+	//vec3 p = lerp(
+	//	lerp(
+	//		lerp(p00, p01, t), 
+	//		lerp(p10, p11, t),
+	//		t),
+	//	lerp(
+	//		lerp(p10, p11, t),
+	//		lerp(p20, p21, t),
+	//		t),
+	//	t);
+	//vec3 p = l(lines, t);
+	//vec3 p = lerp(lerp(p00, p01, t), lerp(p10, p11, t), t);
+	//sphere->setWorldPosition(p);
+	//for (int i = 0; i < mans.size(); i++)
 	//{
-	//	if (ImGui::BeginTabItem("Implicit"))
-	//	{
-	//		static int selected_implicit = 0;
-	//		static int selected_implicit_prev = ~selected_implicit;
-	//		vector<const char*> function_names;
-	//		for (auto& it = implicit_functions_map.begin(); it != implicit_functions_map.end(); it++)
-	//		{
-	//			function_names.push_back(it->first);
-	//		}
-	//		ImGui::Combo("Examples", &selected_implicit, &function_names[0], function_names.size());
-	//
-	//		static char buffer[256];
-	//
-	//		static float min_point[3];
-	//		static float max_point[3];
-	//		static float density[3];
-	//
-	//		if (selected_implicit != selected_implicit_prev)
-	//		{
-	//			ImplicitFunctionConfiguration c = *implicit_functions_map.find(function_names[selected_implicit])->second;
-	//			memcpy(&buffer[0], c.description, strlen(c.description) + 1);
-	//			min_point[0] = c.volume.getLeftBottomBack().x;
-	//			min_point[1] = c.volume.getLeftBottomBack().y;
-	//			min_point[2] = c.volume.getLeftBottomBack().z;
-	//
-	//			max_point[0] = c.volume.getRightUpperFront().x;
-	//			max_point[1] = c.volume.getRightUpperFront().y;
-	//			max_point[2] = c.volume.getRightUpperFront().z;
-	//
-	//			density[0] = 1 / c.steps.x;
-	//			density[1] = 1 / c.steps.y;
-	//			density[2] = 1 / c.steps.z;
-	//		}
-	//		selected_implicit_prev = selected_implicit;
-	//		ImGui::Text("F(x, y, z) =");
-	//		ImGui::SameLine();
-	//		ImGui::InputText("= 0", buffer, 256);
-	//		ImGui::Text("Volume");
-	//		ImGui::DragFloat3("Min point", min_point, 0.1, -10, 10);
-	//		ImGui::DragFloat3("Max point", max_point, 0.1, -10, 10);
-	//
-	//		ImGui::Text("Density on unit");
-	//		ImGui::DragFloat3("Density", density, 0.1, 0.1, 100);
-	//
-	//		BoundBox bb(vec3(min_point[0], min_point[1], min_point[2]), vec3(max_point[0], max_point[1], max_point[2]));
-	//		vec3 steps = vec3(1 / density[0], 1 / density[1], 1 / density[2]);
-	//
-	//
-	//		if (ImGui::Button("Build"))
-	//		{
-	//			delete cuurent_implicit_config;
-	//			delete cuurent_implicit_function;
-	//			remove(current_implicit_function_drawer);
-	//			remove(current_parametric_function_drawer);
-	//			delete current_parametric_function_drawer;
-	//			delete current_implicit_function_drawer;
-	//			auto m = string(buffer);
-	//
-	//			cuurent_implicit_function = new ImplicitFunction(m);
-	//			cuurent_implicit_config = new ImplicitFunctionConfiguration
-	//			{
-	//				"",
-	//				bind(&ImplicitFunction::calculate, cuurent_implicit_function, placeholders::_1),
-	//				steps,
-	//				bb,
-	//				true,
-	//				false
-	//			};
-	//
-	//
-	//			current_implicit_function_drawer = new ImplicitFunctionDrawer(*cuurent_implicit_config);
-	//			current_implicit_function_drawer->task->onProcessEvent.add(bind(&FunctionVisualizerScene::on_progress, this, placeholders::_1));
-	//			current_implicit_function_drawer->setShader(function_shader);
-	//			add(current_implicit_function_drawer);
-	//		}
-	//		ImGui::EndTabItem();
-	//	}
-	//	if (ImGui::BeginTabItem("Parametric"))
-	//	{
-	//		static int selected_parametric = 0;
-	//		static int selected_parametric_prev = ~selected_parametric;
-	//		vector<const char*> function_names;
-	//
-	//		static char x_buffer[256];
-	//		static char y_buffer[256];
-	//		static char z_buffer[256];
-	//		static float u_min_max[2];
-	//		static float v_min_max[2];
-	//		static int divisions[2];
-	//		for (auto& it = parametric_functions_map.begin(); it != parametric_functions_map.end(); it++)
-	//		{
-	//			function_names.push_back(it->first);
-	//		}
-	//		ImGui::Combo("Examples", &selected_parametric, &function_names[0], function_names.size());
-	//
-	//		if (selected_parametric != selected_parametric_prev)
-	//		{
-	//			ParametricFunctionConfiguration c = *parametric_functions_map.find(function_names[selected_parametric])->second;
-	//			memcpy(&x_buffer[0], c.x_func, strlen(c.x_func) + 1);
-	//			memcpy(&y_buffer[0], c.y_func, strlen(c.y_func) + 1);
-	//			memcpy(&z_buffer[0], c.z_func, strlen(c.z_func) + 1);
-	//
-	//			u_min_max[0] = c.u_range.x;
-	//			u_min_max[1] = c.u_range.y;
-	//
-	//			v_min_max[0] = c.v_range.x;
-	//			v_min_max[1] = c.v_range.y;
-	//
-	//			divisions[0] = c.divisions.x;
-	//			divisions[1] = c.divisions.y;
-	//		}
-	//		selected_parametric_prev = selected_parametric;
-	//
-	//
-	//
-	//		ImGui::InputText("= x(u, v)", &x_buffer[0], 256);
-	//
-	//		ImGui::InputText("= y(u, v)", &y_buffer[0], 256);
-	//
-	//		ImGui::InputText("= z(u, v)", &z_buffer[0], 256);
-	//
-	//
-	//		ImGui::InputFloat2("u range", u_min_max);
-	//		ImGui::InputFloat2("v range", v_min_max);
-	//
-	//
-	//		ImGui::InputInt2("Divisions", divisions);
-	//
-	//		if (ImGui::Button("Build"))
-	//		{
-	//			delete cuurent_parametric_config;
-	//			delete cuurent_parametric_function;
-	//			remove(current_parametric_function_drawer);
-	//			delete current_parametric_function_drawer;
-	//			remove(current_implicit_function_drawer);
-	//			delete current_implicit_function_drawer;
-	//			vec2 u_range = vec2(u_min_max[0], u_min_max[1]);
-	//			vec2 v_range = vec2(v_min_max[0], v_min_max[1]);
-	//			ivec2 divisions_vec = ivec2(divisions[0], divisions[1]);
-	//
-	//			cuurent_parametric_function = new ParametricFunction(string(x_buffer), string(y_buffer), string(z_buffer));
-	//			cuurent_parametric_config = new ParametricFunctionConfiguration
-	//			{
-	//				"",
-	//				"",
-	//				"",
-	//				bind(&ParametricFunction::calculate, cuurent_parametric_function, placeholders::_1),
-	//				u_range,
-	//				v_range,
-	//				divisions_vec
-	//			};
-	//
-	//
-	//			current_parametric_function_drawer = new ParametricFunctionDrawer(*cuurent_parametric_config);
-	//			current_parametric_function_drawer->task->onProcessEvent.add(bind(&FunctionVisualizerScene::on_progress, this, placeholders::_1));
-	//			current_parametric_function_drawer->setShader(function_shader);
-	//			add(current_parametric_function_drawer);
-	//		}
-	//
-	//		ImGui::EndTabItem();
-	//	}
-	//	ImGui::EndTabBar();
+	//	vec3 pos = mans[i]->getWorldPosition();
+	//	float* v = (float*)&pos;
+	//	char buff[256];
+	//	sprintf(buff, "Position %d %d\n", i% mans.size(), i/ mans.size());
+	//	ImGui::DragFloat3(buff, v, 0.2, -10, 10);
+	//	mans[i]->setWorldPosition(pos);
 	//}
-	//ImGui::Text("Generating progress...");
-	//ImGui::ProgressBar(progress);
 }
 
 void FunctionVisualizerScene::on_progress(float p)
@@ -336,10 +213,94 @@ vec3 torus(const vec2& val)
 	return vec3((R + r * cos(u)) * cos(v), (R + r * cos(u)) * sin(v), r * sin(u));
 }
 
+float powFast(float v, int n)
+{
+	float s = 1;
+	for (int i = 0; i < n; i++)
+	{
+		s = s * v;
+	}
+	return s;
+}
 
+float stirling(int n)
+{
+	if (n <= 1)
+		return 1.0f;
+	float s = (float)n;
+	float up = sqrt(2 * glm::pi<float>() * s);
+	return floor(sqrt(2 * glm::pi<float>() * s)* powFast(s / glm::e<float>(), n)*(1 + 1.0/(12*s)));
+}
+
+int C(int n, int k)
+{
+	float s1 = stirling(n);
+	float s2 = stirling(k);
+	float s3 = stirling(n - k);
+	return s1 / (s2 * s3);
+}
+float Bernshtein(int n, int k, float t)
+{
+	return C(n, k) * pow(t, k) * pow(1 - t, n - k);
+}
+vec3 Bezier(float t, vector<vec3> points)
+{
+	int n = points.size() - 1;
+	vec3 result = Bernshtein(n, 0, t) * points[0];
+	for (int k = 1; k <= n; k++)
+	{
+		result += Bernshtein(n, k, t) * points[k];
+	}
+
+	return result;
+}
+
+vec3 ff(const vec2 uv)
+{
+	float u = uv.x;
+	float v = uv.y;
+	int ss = mans.size();
+	int i = u * (ss - 1);
+	int j = v * (ss - 1);
+
+	//vector<vec3> sss;
+	//for (size_t k = 0; k < ss; k++)
+	//{
+	//	for (size_t j = 0; j < ss; j++)
+	//	{
+	//		sss.push_back(mans[k][j]->getWorldPosition());
+	//	}
+	//}
+
+	auto n =  mans.size()-1;
+	auto m =  mans.size()-1;
+	auto result = vec3(0);
+	for (int i = 0; i <= n; i++)
+	{
+		for (int j = 0; j <= m; j++)
+		{
+			result += mans[i][j]->getWorldPosition() * Bernshtein(n, i, u) * Bernshtein(m, j, v);
+		}
+	}
+	return result;
+
+	//std::vector<pair<vec3, vec3>> vertical;
+	//
+	//for (size_t k = 0; k < ss - 1; k++)
+	//{
+	//	vertical.push_back(make_pair(mans[k][j]->getWorldPosition(), mans[k + 1][j]->getWorldPosition()));
+	//}
+	//
+	//std::vector<pair<vec3, vec3>> horizontal;
+	//for (size_t k = 0; k < ss - 1; k++)
+	//{
+	//	horizontal.push_back(make_pair(mans[i][k]->getWorldPosition(), mans[i][k+1]->getWorldPosition()));
+	//}
+}
 
 FunctionVisualizerScene::FunctionVisualizerScene(CameraBase* camera) : Scene(camera)
 {
+
 	auto p0 = vec3(-5.5f);
 	auto p1 = vec3(5.5);
 	// bb_shader = new DefaultShader(camera, ROOT_DIR "src/shaders/bound_box.vert", ROOT_DIR "src/shaders/bound_box.frag");
@@ -350,17 +311,49 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase* camera) : Scene(cam
 	auto parametric = new ParametricFunction("(1 + 0.5 * cos(u)) * cos(v)", "(1 + 0.5 * cos(u)) * sin(v)", "0.5*sin(u)");
 
 	function_shader = new AmbientDiffuseSpecularShader(camera);
-
-	
-
+	line = new Line(glm::vec3(0), glm::vec3(0, 0, 1));
+	line2 = new Line(glm::vec3(0, 0, 1), glm::vec3(0, 1, 2));
+	line3 = new Line(glm::vec3(0, 1, 2), glm::vec3(0, 4, -2));
+	sphere = new Sphere(0.05);
+	add(sphere);
+	sphere->setShader(function_shader);
+	add(line);
+	line->setShader(function_shader);
+	add(line2);
+	line2->setShader(function_shader);
+	add(line3);
+	line3->setShader(function_shader);
 	//auto implicit_function_drawer = new ImplicitFunctionDrawer(config);
 	//implicit_function_drawer->task->onProcessEvent.add(bind(&FunctionVisualizerScene::on_progress, this, placeholders::_1));
 	//implicit_function_drawer->setShader(function_shader);
-
+	int n = 8;
+	for (int i = 0; i < 8; i++)
+	{
+		vector<Manipulator*> m;
+		for (int j = 0; j < 8; j++)
+		{
+			auto man = new Manipulator(camera);
+			man->setWorldPosition(vec3(i - n/2, sin(i + j), j - n/2));
+			m.push_back(man);
+			add(man);
+		}
+		mans.push_back(m);
+	}
 	float pi = glm::pi<float>();
+	auto parametric_function_drawer = new ParametricFunctionDrawer(*new ParametricFunctionConfiguration{
+		"u",
+		"v",
+		 "u^2 - v^2",
+		 ff,
+		 vec2(0, 1),
+		 vec2(0, 1)
+		});
+
+
 	//auto parametric_function_drawer = new ParametricFunctionDrawer(bind(&ParametricFunction::calculate, parametric, placeholders::_1), vec2(0.0f, 2 * pi), vec2(0, pi * 2), ivec2(80, 80), false, true);
-	//parametric_function_drawer->task->onProcessEvent.add(bind(&FunctionVisualizerScene::on_progress, this, placeholders::_1));
-	//parametric_function_drawer->setShader(function_shader);
+	parametric_function_drawer->task->onProcessEvent.add(bind(&FunctionVisualizerScene::on_progress, this, placeholders::_1));
+	parametric_function_drawer->setShader(function_shader);
+	add(parametric_function_drawer);
 	//float a = 0.0f, b = -5.0f, c = 11.8f;
 	//return x * x * x * x + y * y * y * y + z * z * z * z + a * (x * x + y * y + z * z) * (x * x + y * y + z * z) +
 	//	b * (x * x + y * y + z * z) + c;
@@ -454,15 +447,5 @@ FunctionVisualizerScene::FunctionVisualizerScene(CameraBase* camera) : Scene(cam
 
 	plane = new Plane(5, 5);
 	plane->setShader(function_shader);
-	for (int i = 0; i < 5; i++)
-	{
-		for (int j = 0; j < 5; j++)
-		{
-			auto man = new Manipulator(camera);
-			man->setWorldPosition(vec3(i - 2, 0, j - 2));
-			mans.push_back(man);
-			add(man);
 
-		}
-	}
 }
