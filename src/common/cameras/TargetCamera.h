@@ -16,7 +16,7 @@ public:
 
 private:
     glm::vec3 target_point;
-    float phi = 0.0f;
+    float phi = 90.0f;
     float ksi = 0.0f;
     float speed = 50.0f;
     float zoom_speed = 1.0f;

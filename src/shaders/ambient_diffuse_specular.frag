@@ -42,4 +42,5 @@ void main()
 
     vec4 texture_pixel_color = texture(tex_sampler, from_vert_texcoord);
     outColor = vec4(ambient + diffuse + spec, 1);
+    outColor = vec4(vec3(1-from_vert_texcoord.x), 1);
 }

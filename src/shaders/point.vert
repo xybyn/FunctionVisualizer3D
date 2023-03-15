@@ -6,7 +6,6 @@ uniform mat4 transform;
 
 void main()
 {
-    gl_PointSize = 4;
     gl_Position =
         projection*
         view*

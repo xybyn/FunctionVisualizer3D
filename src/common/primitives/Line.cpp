@@ -14,6 +14,8 @@ void Line::render()
 		texture->bind();
 	glBindVertexArray(VAO);
 	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	//glDrawElements(GL_NONE, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 Line::Line(const glm::vec3& p0, const glm::vec3& p1)

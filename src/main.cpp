@@ -23,6 +23,7 @@
 #include "common/scenes/MultipleTexturesScene.h"
 #include "common/scenes/NormalMapScene.h"
 #include "common/scenes/FunctionVisualizerScene.h"
+#include "common/scenes/NURBSScene.h"
 #include "common/tasks/HelloWorldTask.h"
 
 using namespace std;
@@ -75,7 +76,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.0f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();

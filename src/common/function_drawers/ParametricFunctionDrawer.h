@@ -35,7 +35,7 @@ public:
 
 public:
 	ParametricFunctionDrawer(const ParametricFunctionConfiguration& config);
-
+	
 
 public:
 	ParametricFunctionConfiguration config;

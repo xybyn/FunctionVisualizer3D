@@ -60,16 +60,23 @@ void WorldObject::initialize_buffers() {
     if(!tangents.empty())
     glBufferSubData(GL_ARRAY_BUFFER, (vertices.size() + normals.size())* sizeof(float) * 3 + tex_coords.size()*sizeof(float)*2, tangents.size() * sizeof(float) * 3,
                     &tangents[0]);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
-
+    if (indices.size())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+    }
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void *) (vertices.size() * sizeof(float) * 3));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, 2 * sizeof(float), (void *) ((vertices.size() + normals.size()) * sizeof(float) * 3));
-    glEnableVertexAttribArray(2);
+    if (normals.size())
+    {
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void*)(vertices.size() * sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+    }
+    if (tex_coords.size())
+    {
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 2 * sizeof(float), (void*)((vertices.size() + normals.size()) * sizeof(float) * 3));
+        glEnableVertexAttribArray(2);
+    }
     if(!tangents.empty())
     {
         glVertexAttribPointer(3, 3, GL_FLOAT, false, 3 * sizeof(float), (void *) ((vertices.size() + normals.size()) * sizeof(float) * 3 + tex_coords.size()*sizeof(float)*2));

@@ -85,11 +85,10 @@ namespace
 
 ParametricFunctionDrawer::ParametricFunctionDrawer(const ParametricFunctionConfiguration &config) :config(config)
 {
-	task = new ParametricFunctionDrawerTask(this);
 	if (!config.postpone)
 		build();
 }
-
+static std::vector<glm::vec3> prev_vertices;
 void ParametricFunctionDrawer::update(float dt)
 {
 	WorldObject::update(dt);
@@ -99,7 +98,19 @@ void ParametricFunctionDrawer::update(float dt)
 		task->update();
 		if (task->isDone())
 		{
+
+			if (!prev_vertices.size())
+			{
+				prev_vertices = vertices;
+			}
+
+			for (int i = 0; i < prev_vertices.size(); i++)
+			{
+				float dif = abs(prev_vertices[i].y - vertices[i].y);
+				tex_coords.push_back(vec2(dif, 0));
+			}
 			initialize_buffers();
+
 			task = nullptr;
 			delete task;
 		}
@@ -110,6 +121,7 @@ void ParametricFunctionDrawer::update(float dt)
 
 void ParametricFunctionDrawer::build()
 {
+	task = new ParametricFunctionDrawerTask(this);
 	task->run();
 }
 
@@ -128,9 +140,13 @@ void ParametricFunctionDrawer::ParametricFunctionDrawerTask::process(ParametricF
 	for (int i = 0; i < owner->config.divisions.x; ++i)
 	{
 		float u = owner->config.u_range.x + i * su;
+		if (u == 1)
+			u = 0.99999;
 		for (int j = 0; j < owner->config.divisions.y; ++j)
 		{
 			float v = owner->config.v_range.x + j * sv;
+			if (v == 1)
+				v = 0.99999;
 			const glm::vec3& vertex = owner->config.f(vec2(u, v));
 
 			owner->vertices.push_back(vertex);
@@ -145,6 +161,7 @@ void ParametricFunctionDrawer::ParametricFunctionDrawerTask::process(ParametricF
 	}
 	owner->bb = new BoundBox(min_corner, max_corner);
 	owner->tree = new CubeTree<int>(*owner->bb);
+
 
 	owner->indices = get_indices(owner->config.divisions.x, owner->config.divisions.y);
 	owner->normals = calculate_normals(owner->config.divisions.x, owner->config.divisions.y, owner->vertices, owner->config.inverted ? -1 : 1);
