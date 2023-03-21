@@ -520,15 +520,6 @@ void FunctionVisualizerScene::update(float dt)
 				u += u_step;
 			}
 
-			static PointsCloud* cloud = nullptr;
-			if (cloud)
-			{
-				remove(cloud);
-				delete cloud;
-			}
-			cloud = new PointsCloud(pts);
-			cloud->setShader(green_shader);
-			add(cloud);
 
 			int nn = sqrt(controls_points.size());
 
