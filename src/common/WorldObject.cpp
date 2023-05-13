@@ -5,6 +5,8 @@
 #include "WorldObject.h"
 
 void WorldObject::render() {
+    if (!active)
+        return;
     if (!vertices.size())
         return;
     if (shader)

@@ -27,7 +27,7 @@ public:
 
     virtual void update(float dt) {}
 
-
+    void setActive(bool active) { this->active = active; }
     void setLocalPosition(const glm::vec3 &new_world_position);
     void setWorldPosition(const glm::vec3 &new_local_position);
     glm::vec3 getWorldPosition() const {
@@ -87,6 +87,7 @@ protected:
 
 private:
     std::vector<WorldObject*> children;
+    bool active = true;
 };
 
 

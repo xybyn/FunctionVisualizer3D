@@ -36,6 +36,9 @@ public:
     void setMaterial(const Material &material){
         this->material = material;
     }
+
+    Light getLight() const { return light; }
+    Material getMaterial() const { return material; }
 private:
     Light light;
     Material material;

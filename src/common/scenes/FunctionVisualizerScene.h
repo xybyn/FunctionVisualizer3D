@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "common/shaders/DefaultShader.h"
 #include "common/shaders/AmbientDiffuseSpecularShader.h"
+#include "common/shaders/SingleColorShader.h"
 #include "common/function_drawers/ImplicitFunctionDrawer.h"
 #include "common/function_drawers/ParametricFunctionDrawer.h"
 #include "common/shaders/FlatADSShader.h"
@@ -20,6 +21,7 @@ public:
 private:
 	WorldObject* object = nullptr;
 	AmbientDiffuseSpecularShader* function_shader = nullptr;
+	SingleColorShader* light_shader = nullptr;
 	FlatADSShader* flat_shader = nullptr;
 	void on_progress(float progress);
 	Plane* plane = nullptr;
