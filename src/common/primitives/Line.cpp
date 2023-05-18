@@ -24,3 +24,13 @@ Line::Line(const glm::vec3& p0, const glm::vec3& p1)
 	indices.push_back(1);
 	initialize_buffers();
 }
+
+void Line::setP0(const glm::vec3& p0)
+{
+	vertices[0] = p0;
+}
+
+void Line::setP1(const glm::vec3& p1)
+{
+	vertices[1] = p1;
+}

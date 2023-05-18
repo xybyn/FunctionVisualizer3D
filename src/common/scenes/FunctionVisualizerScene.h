@@ -9,6 +9,7 @@
 #include "common/function_drawers/ImplicitFunctionDrawer.h"
 #include "common/function_drawers/ParametricFunctionDrawer.h"
 #include "common/shaders/FlatADSShader.h"
+#include "common/shaders/SingleColorShader.h"
 #include "common/primitives/BoundBoxRenderer.h"
 #include "common/primitives/Plane.h"
 #include "common/abstracts/BoundBox.h"
@@ -21,7 +22,11 @@ public:
 private:
 	WorldObject* object = nullptr;
 	AmbientDiffuseSpecularShader* function_shader = nullptr;
+
 	SingleColorShader* light_shader = nullptr;
+
+	SingleColorShader* red = nullptr;
+
 	FlatADSShader* flat_shader = nullptr;
 	void on_progress(float progress);
 	Plane* plane = nullptr;

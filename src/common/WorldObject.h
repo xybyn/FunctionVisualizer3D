@@ -85,7 +85,6 @@ protected:
     glm::mat4 transform_matrix = glm::mat4(1);
     WorldObject* parent = nullptr;
 
-private:
     std::vector<WorldObject*> children;
     bool active = true;
 };

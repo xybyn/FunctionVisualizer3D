@@ -10,3 +10,13 @@ void Scene::render() {
 		(*it)->render();
 	}
 }
+
+void Scene::removeAll()
+{
+	for (auto it = objects.begin(); it!=objects.end();it++)
+	{
+		delete (*it);
+	}
+
+	objects.clear();
+}

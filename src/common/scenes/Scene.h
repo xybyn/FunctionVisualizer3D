@@ -32,7 +32,7 @@ public:
 	virtual std::string getName() const = 0;
 protected:
 	CameraBase* camera;
-private:
+	void removeAll();
 	std::list<WorldObject*> objects;
 
 };
